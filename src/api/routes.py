@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, Depends, File, Header, HTTPException, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Request, Response, UploadFile
 from pydantic import BaseModel
 
 from src.api.websocket import manager
@@ -61,13 +61,19 @@ def get_state(request_app):
 
 def register_routes(app, engine, monitor_loop, get_current_user):
     @app.get("/api/network-info")
-    def network_info():
-        lan_ip = _detect_lan_ip()
-        dashboard_port = 5173
+    def network_info(request: Request):
+        """Link peserta dibangun dari origin request yang sebenarnya
+        (bukan tebakan port dev), jadi otomatis benar baik saat diakses
+        dari desktop app (:8000), LAN (IP host), maupun production di
+        belakang Nginx (domain publik, port 443/80 tersirat)."""
+        forwarded_proto = request.headers.get("x-forwarded-proto")
+        scheme = forwarded_proto or request.url.scheme
+        host = request.headers.get("host") or request.url.netloc
+        participant_link = f"{scheme}://{host}/?view=saya"
+
         return {
-            "lan_ip": lan_ip,
-            "dashboard_port": dashboard_port,
-            "participant_link": f"http://{lan_ip}:{dashboard_port}/?view=saya",
+            "lan_ip": _detect_lan_ip(),
+            "participant_link": participant_link,
         }
 
     @app.get("/api/preview")
