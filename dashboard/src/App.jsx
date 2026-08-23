@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { Play, Square, Wifi, WifiOff } from "lucide-react";
+import { Play, Square, Wifi, WifiOff, Bell, BellOff } from "lucide-react";
 import { useWebSocket } from "./hooks/useWebSocket";
+import { useAwayAlerts } from "./hooks/useAwayAlerts";
 import { API_BASE } from "./api";
 import ParticipantCard from "./components/ParticipantCard";
 import LiveStats from "./components/LiveStats";
 import SessionSummary from "./components/SessionSummary";
 import ParticipantLinkPanel from "./components/ParticipantLinkPanel";
 import ParticipantSelfView from "./components/ParticipantSelfView";
-import ScreenPreview from "./components/ScreenPreview";
+import BrowserScreenCapture from "./components/BrowserScreenCapture";
 
 function HostDashboard() {
   const { participants, lastTimestamp, connected } = useWebSocket();
+  const { permission: notifPermission, requestPermission: requestNotifPermission } = useAwayAlerts(participants);
   const [sessionActive, setSessionActive] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -33,7 +35,7 @@ function HostDashboard() {
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" className="h-10 w-10 object-cover" />
           <div>
-            <h1 className="text-xl font-bold">Meeting Monitor</h1>
+            <h1 className="text-xl font-bold">SAWALA</h1>
             <p className="text-xs text-neutral-500">
               Host Monitoring Dashboard
             {lastTimestamp && (
@@ -49,6 +51,21 @@ function HostDashboard() {
             {connected ? <Wifi size={14} /> : <WifiOff size={14} />}
             {connected ? "Terhubung" : "Terputus"}
           </span>
+          {notifPermission !== "unsupported" && notifPermission !== "granted" && (
+            <button
+              onClick={requestNotifPermission}
+              className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-600 hover:bg-neutral-100"
+              title="Dapat notifikasi desktop saat ada kejadian baru walau sedang di tab lain"
+            >
+              <BellOff size={14} />
+              Aktifkan Notifikasi
+            </button>
+          )}
+          {notifPermission === "granted" && (
+            <span className="inline-flex items-center gap-1 text-xs text-neutral-400" title="Notifikasi tab-lain aktif">
+              <Bell size={14} />
+            </span>
+          )}
           <button
             onClick={toggleSession}
             disabled={loading}
@@ -63,7 +80,7 @@ function HostDashboard() {
       <main className="space-y-6">
         <ParticipantLinkPanel />
 
-        <ScreenPreview />
+        <BrowserScreenCapture />
 
         <LiveStats participants={participants} />
 

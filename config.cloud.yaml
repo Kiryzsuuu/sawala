@@ -1,0 +1,41 @@
+capture:
+  interval_seconds: 3
+  region: null
+  tile_grid: "auto"
+  tile_min_size: 80
+  tile_max_count: 49
+  enable_local_capture: false  # Wajib false: container cloud tidak punya layar lokal.
+                                # Sumber frame adalah /api/ingest/screen (tombol
+                                # "Aktifkan Screen Capture" di dashboard, lewat browser).
+
+thresholds:
+  ear_fatigue: 0.25
+  ear_fatigue_frames: 20
+  phone_confidence: 0.5
+  liveness_score: 0.6
+  smile_confidence: 0.6
+  head_pitch_fatigue_deg: 20
+
+face_detection:
+  min_detection_confidence: 0.5
+  min_tracking_confidence: 0.5
+
+bot_ingest:
+  # "change-me" menonaktifkan pengecekan token - dashboard (tombol "Aktifkan
+  # Screen Capture") belum mengirim token apa pun karena aplikasi ini TIDAK
+  # PUNYA sistem login/autentikasi sama sekali. Kalau diisi token asli di sini,
+  # fitur screen-capture browser akan ditolak (401) kecuali frontend juga
+  # diubah untuk mengirim token itu. Untuk deploy publik, amankan lewat
+  # reverse proxy (HTTP Basic Auth / VPN / whitelist IP) - lihat README.
+  token: "change-me"
+
+database:
+  path: "./data/session.db"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+
+logging:
+  level: "INFO"
+  file: "./logs/monitor.log"

@@ -18,9 +18,12 @@ def get_logger(name: str) -> logging.Logger:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setFormatter(fmt)
-    logger.addHandler(stream_handler)
+    # sys.stdout is None under a windowed (no-console) PyInstaller build -
+    # only attach the console handler when there's an actual stream to write to.
+    if sys.stdout is not None:
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(fmt)
+        logger.addHandler(stream_handler)
 
     log_file = CONFIG.logging.get("file")
     if log_file:

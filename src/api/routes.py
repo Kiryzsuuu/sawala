@@ -81,7 +81,12 @@ def register_routes(app, engine, monitor_loop):
     @app.post("/api/session/start")
     async def start_session():
         session_id = engine.start_session()
-        monitor_loop.start()
+        # Di deployment tanpa akses layar lokal (mis. cloud), matikan lewat
+        # capture.enable_local_capture: false di config.yaml - host memakai
+        # /api/ingest/screen (tombol "Aktifkan Screen Capture" di dashboard)
+        # sebagai gantinya, bukan mss lokal yang tidak akan pernah berhasil.
+        if CONFIG.capture.get("enable_local_capture", True):
+            monitor_loop.start()
         return {"session_id": session_id, "status": "started"}
 
     @app.post("/api/session/stop")
@@ -126,6 +131,39 @@ def register_routes(app, engine, monitor_loop):
         await manager.broadcast(payload)
 
         return {"status": "ok"}
+
+    @app.post("/api/ingest/screen")
+    async def ingest_screen(
+        file: UploadFile = File(...),
+        x_ingest_token: str | None = Header(default=None),
+    ):
+        """Menerima satu screenshot gallery-view penuh dari browser host
+        (lewat getDisplayMedia), sebagai alternatif screen-capture lokal
+        (mss) untuk skenario deploy di cloud yang tidak punya akses layar
+        lokal. Frame ini melalui pipeline yang sama persis dengan
+        run_cycle(): tile-split lalu deteksi per tile."""
+        expected_token = CONFIG.bot_ingest.get("token")
+        if expected_token and expected_token != "change-me" and x_ingest_token != expected_token:
+            raise HTTPException(401, "Invalid or missing X-Ingest-Token")
+
+        if not engine.session_id:
+            raise HTTPException(409, "No active session - call /api/session/start first")
+
+        raw = await file.read()
+        buffer = np.frombuffer(raw, dtype=np.uint8)
+        image = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
+        if image is None:
+            raise HTTPException(400, "Could not decode image")
+
+        statuses = engine.process_screen_frame(image)
+
+        payload = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "participants": [s.model_dump() for s in statuses],
+        }
+        await manager.broadcast(payload)
+
+        return {"status": "ok", "participants_seen": len(statuses)}
 
     @app.get("/api/participants")
     def get_participants():

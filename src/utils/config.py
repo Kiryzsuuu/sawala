@@ -2,12 +2,24 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config.yaml"
+
+def _default_config_path() -> Path:
+    """Under a PyInstaller build, config.yaml (and data/, logs/) must live
+    next to the .exe, not inside the read-only bundled temp dir - so users
+    can edit thresholds/region without rebuilding, and so the app doesn't
+    lose written data when the temp extraction dir is cleaned up."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent / "config.yaml"
+    return Path(__file__).resolve().parents[2] / "config.yaml"
+
+
+_CONFIG_PATH = _default_config_path()
 
 
 class ConfigNode:

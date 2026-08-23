@@ -5,6 +5,10 @@ capture:
   tile_min_size: 80            # Minimal ukuran tile (px) untuk dianalisis
   tile_max_count: 49           # Batas jumlah tile wajar per meeting; di atas ini
                                 # dianggap capture bukan gallery view lalu fallback ke 2x2
+  enable_local_capture: true   # Set false kalau backend jalan di server tanpa akses
+                                # layar lokal (mis. cloud) - pakai fitur "Aktifkan Screen
+                                # Capture" di dashboard (getDisplayMedia browser) sebagai
+                                # gantinya, lewat endpoint /api/ingest/screen.
 
 thresholds:
   ear_fatigue: 0.25            # EAR dibawah ini = fatigue

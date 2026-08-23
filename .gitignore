@@ -29,6 +29,11 @@ dashboard/dist/
 dashboard/.vite/
 npm-debug.log*
 
+# Desktop packaging build output (regenerated via pyinstaller/ISCC, not source)
+build/
+dist/
+Output/
+
 # Editor / OS
 .vscode/
 .idea/

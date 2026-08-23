@@ -1,0 +1,114 @@
+import { useRef, useState } from "react";
+import { MonitorUp, MonitorX } from "lucide-react";
+import { API_BASE } from "../api";
+
+const CAPTURE_INTERVAL_MS = 3000;
+
+export default function BrowserScreenCapture() {
+  const [active, setActive] = useState(false);
+  const [error, setError] = useState("");
+  const streamRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const timerRef = useRef(null);
+
+  async function start() {
+    setError("");
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: "window" },
+        audio: false,
+      });
+
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      video.muted = true;
+      await video.play();
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      streamRef.current = stream;
+      videoRef.current = video;
+      canvasRef.current = canvas;
+
+      // Kalau host berhenti berbagi lewat dialog browser (bukan tombol kita),
+      // pastikan state ikut berhenti juga.
+      stream.getVideoTracks()[0].addEventListener("ended", stop);
+
+      timerRef.current = setInterval(sendFrame, CAPTURE_INTERVAL_MS);
+      setActive(true);
+    } catch (err) {
+      if (err.name !== "NotAllowedError") {
+        setError("Gagal mengaktifkan screen capture: " + err.message);
+      }
+    }
+  }
+
+  async function sendFrame() {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(
+      async (blob) => {
+        if (!blob) return;
+        const formData = new FormData();
+        formData.append("file", blob, "screen.jpg");
+        try {
+          const res = await fetch(`${API_BASE}/api/ingest/screen`, {
+            method: "POST",
+            body: formData,
+          });
+          if (!res.ok) {
+            const detail = await res.json().catch(() => null);
+            setError(detail?.detail || `Server menolak frame (${res.status})`);
+          } else {
+            setError("");
+          }
+        } catch {
+          setError("Tidak bisa menghubungi server.");
+        }
+      },
+      "image/jpeg",
+      0.8
+    );
+  }
+
+  function stop() {
+    clearInterval(timerRef.current);
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    videoRef.current = null;
+    canvasRef.current = null;
+    setActive(false);
+  }
+
+  return (
+    <div className="rounded-xl border border-neutral-300 bg-white p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            {active ? <MonitorUp size={16} /> : <MonitorX size={16} />}
+            Screen Capture via Browser
+          </div>
+          <p className="mt-1 text-xs text-neutral-500">
+            Pakai ini kalau backend jalan di server/cloud (tidak punya akses layar lokal). Pilih jendela
+            Zoom/Meet saat diminta browser. Perlu sesi aktif dulu.
+          </p>
+        </div>
+        <button
+          onClick={active ? stop : start}
+          className="inline-flex items-center gap-2 rounded-lg border border-ink px-4 py-2 text-sm font-medium text-ink hover:bg-ink hover:text-paper"
+        >
+          {active ? "Hentikan" : "Aktifkan Screen Capture"}
+        </button>
+      </div>
+      {error && <p className="mt-2 text-xs text-neutral-500">{error}</p>}
+    </div>
+  );
+}

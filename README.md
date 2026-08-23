@@ -1,4 +1,4 @@
-# Meeting Monitor - Skenario B (Host Monitoring)
+# SAWALA - Skenario B (Host Monitoring)
 
 Implementasi dari `sistem-deteksi-meeting-skenario-b.md`. Host melakukan
 screen capture pada gallery view meeting, sistem memotong tiap tile peserta

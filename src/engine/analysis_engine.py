@@ -29,7 +29,12 @@ logger = get_logger(__name__)
 class AnalysisEngine:
     def __init__(self, db: Database):
         self.db = db
-        self.capture = ScreenCapture()
+        # Local screen capture (mss) needs a real display - it's created
+        # lazily on first use, not here, so the engine still starts fine
+        # on a headless server that only ever receives frames pushed by a
+        # browser (see process_screen_frame / process_named_frame) instead
+        # of grabbing the host's own screen (run_cycle).
+        self._capture: ScreenCapture | None = None
         self.splitter = TileSplitter(
             grid=CONFIG.capture.tile_grid,
             min_tile_size=CONFIG.capture.tile_min_size,
@@ -38,6 +43,11 @@ class AnalysisEngine:
         self.buffer = FrameBuffer()
         self.session_id: str | None = None
         self.last_preview_jpeg: bytes | None = None
+
+    def _get_capture(self) -> ScreenCapture:
+        if self._capture is None:
+            self._capture = ScreenCapture()
+        return self._capture
 
     def start_session(self) -> str:
         self.buffer.reset()
@@ -123,14 +133,16 @@ class AnalysisEngine:
             flags=flags,
         )
 
-    def run_cycle(self) -> list[ParticipantStatus]:
-        """Perform one capture+analyze+persist cycle from screen capture
-        (Skenario B). Returns the list of participant statuses for this
-        tick."""
+    def process_screen_frame(self, frame: np.ndarray) -> list[ParticipantStatus]:
+        """Split one full gallery-view frame into tiles and run the full
+        pipeline on each (Skenario B), regardless of where the frame came
+        from: local ScreenCapture.grab() (run_cycle) or a browser upload
+        via getDisplayMedia (the /api/ingest/screen endpoint, used when
+        the backend runs somewhere without local display access, e.g. a
+        cloud deployment). Persists and returns the statuses for this tick."""
         if not self.session_id:
             raise RuntimeError("No active session - call start_session() first")
 
-        frame = self.capture.grab()
         tiles = self.splitter.split(frame)
         now_iso = datetime.now(timezone.utc).isoformat()
         statuses: list[ParticipantStatus] = []
@@ -148,13 +160,22 @@ class AnalysisEngine:
 
         return statuses
 
+    def run_cycle(self) -> list[ParticipantStatus]:
+        """Perform one capture+analyze+persist cycle from local screen
+        capture (Skenario B, desktop app). Returns the list of participant
+        statuses for this tick."""
+        if not self.session_id:
+            raise RuntimeError("No active session - call start_session() first")
+        frame = self._get_capture().grab()
+        return self.process_screen_frame(frame)
+
     def capture_preview(self) -> bytes:
         """Grab one frame and return an annotated preview JPEG showing the
         capture region and current tile split, without requiring an active
         session or running the full detection pipeline. Lets the host
         calibrate `capture.region` / `capture.tile_grid` before or during
         monitoring, instead of running blind."""
-        frame = self.capture.grab()
+        frame = self._get_capture().grab()
         tiles = self.splitter.split(frame)
         faces_now = {
             tile.index for tile in tiles
@@ -196,4 +217,5 @@ class AnalysisEngine:
         return statuses
 
     def close(self) -> None:
-        self.capture.close()
+        if self._capture is not None:
+            self._capture.close()
