@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { MonitorUp, MonitorX } from "lucide-react";
-import { API_BASE } from "../api";
+import { authFetch } from "../auth";
 
 const CAPTURE_INTERVAL_MS = 3000;
 
@@ -60,7 +60,7 @@ export default function BrowserScreenCapture() {
         const formData = new FormData();
         formData.append("file", blob, "screen.jpg");
         try {
-          const res = await fetch(`${API_BASE}/api/ingest/screen`, {
+          const res = await authFetch("/api/ingest/screen", {
             method: "POST",
             body: formData,
           });
@@ -90,7 +90,7 @@ export default function BrowserScreenCapture() {
 
   return (
     <div className="rounded-xl border border-neutral-300 bg-white p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">
             {active ? <MonitorUp size={16} /> : <MonitorX size={16} />}
@@ -103,7 +103,7 @@ export default function BrowserScreenCapture() {
         </div>
         <button
           onClick={active ? stop : start}
-          className="inline-flex items-center gap-2 rounded-lg border border-ink px-4 py-2 text-sm font-medium text-ink hover:bg-ink hover:text-paper"
+          className="w-full flex-shrink-0 rounded-lg border border-ink px-4 py-2 text-sm font-medium text-ink hover:bg-ink hover:text-paper sm:w-auto"
         >
           {active ? "Hentikan" : "Aktifkan Screen Capture"}
         </button>

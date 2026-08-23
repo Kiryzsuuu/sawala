@@ -12,9 +12,12 @@ from fastapi.staticfiles import StaticFiles
 
 from src.api.routes import register_routes
 from src.api.websocket import MonitorLoop, manager
+from src.auth.routes import register_auth_routes
+from src.auth.user_store import UserStore, bootstrap_super_admin
 from src.data.database import Database
 from src.engine.analysis_engine import AnalysisEngine
 from src.utils.config import CONFIG, PROJECT_ROOT
+from src.utils.env import ADMIN_EMAIL, ADMIN_PASSWORD
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -22,15 +25,18 @@ logger = get_logger(__name__)
 db = Database()
 engine = AnalysisEngine(db)
 monitor_loop = MonitorLoop(engine, interval_seconds=CONFIG.capture.interval_seconds)
+user_store = UserStore()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("SAWALA API starting up")
+    bootstrap_super_admin(user_store, ADMIN_EMAIL, ADMIN_PASSWORD)
     yield
     await monitor_loop.stop()
     engine.close()
     db.close()
+    user_store.close()
     logger.info("SAWALA API shut down")
 
 
@@ -44,7 +50,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-register_routes(app, engine, monitor_loop)
+get_current_user = register_auth_routes(app, user_store)
+register_routes(app, engine, monitor_loop, get_current_user)
 
 
 @app.websocket("/ws/live")

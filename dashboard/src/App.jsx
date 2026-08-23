@@ -1,26 +1,30 @@
-import { useState } from "react";
-import { Play, Square, Wifi, WifiOff, Bell, BellOff } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Play, Square, Wifi, WifiOff, Bell, BellOff, LogOut, ShieldCheck } from "lucide-react";
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useAwayAlerts } from "./hooks/useAwayAlerts";
-import { API_BASE } from "./api";
+import { authFetch, clearSession, getStoredUser, getToken } from "./auth";
 import ParticipantCard from "./components/ParticipantCard";
 import LiveStats from "./components/LiveStats";
 import SessionSummary from "./components/SessionSummary";
 import ParticipantLinkPanel from "./components/ParticipantLinkPanel";
 import ParticipantSelfView from "./components/ParticipantSelfView";
 import BrowserScreenCapture from "./components/BrowserScreenCapture";
+import Login from "./components/Login";
+import ResetPassword from "./components/ResetPassword";
+import AdminPanel from "./components/AdminPanel";
 
-function HostDashboard() {
+function HostDashboard({ user, onLogout }) {
   const { participants, lastTimestamp, connected } = useWebSocket();
   const { permission: notifPermission, requestPermission: requestNotifPermission } = useAwayAlerts(participants);
   const [sessionActive, setSessionActive] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   async function toggleSession() {
     setLoading(true);
     try {
       const endpoint = sessionActive ? "/api/session/stop" : "/api/session/start";
-      const res = await fetch(`${API_BASE}${endpoint}`, { method: "POST" });
+      const res = await authFetch(endpoint, { method: "POST" });
       if (res.ok) setSessionActive(!sessionActive);
     } catch (err) {
       console.error("Failed to toggle session", err);
@@ -30,11 +34,11 @@ function HostDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-paper px-6 py-6 font-sans text-ink">
-      <header className="mb-6 flex items-center justify-between">
+    <div className="min-h-screen bg-paper px-4 py-4 font-sans text-ink sm:px-6 sm:py-6">
+      <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Logo" className="h-10 w-10 object-cover" />
-          <div>
+          <img src="/logo.png" alt="Logo" className="h-10 w-10 flex-shrink-0 object-cover" />
+          <div className="min-w-0">
             <h1 className="text-xl font-bold">SAWALA</h1>
             <p className="text-xs text-neutral-500">
               Host Monitoring Dashboard
@@ -46,7 +50,7 @@ function HostDashboard() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="inline-flex items-center gap-1 text-xs text-neutral-500">
             {connected ? <Wifi size={14} /> : <WifiOff size={14} />}
             {connected ? "Terhubung" : "Terputus"}
@@ -58,13 +62,22 @@ function HostDashboard() {
               title="Dapat notifikasi desktop saat ada kejadian baru walau sedang di tab lain"
             >
               <BellOff size={14} />
-              Aktifkan Notifikasi
+              <span className="hidden sm:inline">Aktifkan Notifikasi</span>
             </button>
           )}
           {notifPermission === "granted" && (
             <span className="inline-flex items-center gap-1 text-xs text-neutral-400" title="Notifikasi tab-lain aktif">
               <Bell size={14} />
             </span>
+          )}
+          {user?.role === "super_admin" && (
+            <button
+              onClick={() => setShowAdmin(true)}
+              className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-600 hover:bg-neutral-100"
+            >
+              <ShieldCheck size={14} />
+              <span className="hidden sm:inline">Kelola User</span>
+            </button>
           )}
           <button
             onClick={toggleSession}
@@ -73,6 +86,13 @@ function HostDashboard() {
           >
             {sessionActive ? <Square size={16} /> : <Play size={16} />}
             {sessionActive ? "Hentikan Sesi" : "Mulai Sesi"}
+          </button>
+          <button
+            onClick={onLogout}
+            className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-600 hover:bg-neutral-100"
+            title={user?.email}
+          >
+            <LogOut size={14} />
           </button>
         </div>
       </header>
@@ -101,6 +121,8 @@ function HostDashboard() {
 
         <SessionSummary participants={participants} />
       </main>
+
+      {showAdmin && <AdminPanel currentUserId={user?.id} onClose={() => setShowAdmin(false)} />}
     </div>
   );
 }
@@ -108,6 +130,27 @@ function HostDashboard() {
 export default function App() {
   const params = new URLSearchParams(window.location.search);
   const isParticipantView = params.get("view") === "saya";
+  const isResetPasswordView = window.location.pathname === "/reset-password";
 
-  return isParticipantView ? <ParticipantSelfView /> : <HostDashboard />;
+  const [user, setUser] = useState(getStoredUser());
+
+  useEffect(() => {
+    if (!getToken()) return;
+    authFetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setUser(data);
+      });
+  }, []);
+
+  function handleLogout() {
+    clearSession();
+    setUser(null);
+  }
+
+  if (isParticipantView) return <ParticipantSelfView />;
+  if (isResetPasswordView) return <ResetPassword />;
+  if (!user || !getToken()) return <Login onLoggedIn={setUser} />;
+
+  return <HostDashboard user={user} onLogout={handleLogout} />;
 }

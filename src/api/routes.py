@@ -8,13 +8,30 @@ from datetime import datetime, timezone
 
 import cv2
 import numpy as np
-from fastapi import APIRouter, File, Header, HTTPException, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 
 from src.api.websocket import manager
+from src.auth.security import decode_access_token
 from src.data.exporter import export_csv, export_json
 from src.data.models import SessionInfo
 from src.utils.config import CONFIG
+
+
+def _authorize_ingest(x_ingest_token: str | None, authorization: str | None) -> None:
+    """Endpoint ingest bisa dipanggil bot eksternal (X-Ingest-Token) atau
+    tombol "Aktifkan Screen Capture" di dashboard (Authorization: Bearer
+    dari user yang sudah login) - keduanya sah, salah satu cukup."""
+    expected_token = CONFIG.bot_ingest.get("token")
+    if expected_token and expected_token != "change-me" and x_ingest_token == expected_token:
+        return
+
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.removeprefix("Bearer ").strip()
+        if decode_access_token(token):
+            return
+
+    raise HTTPException(401, "Perlu login atau X-Ingest-Token yang valid")
 
 
 def _detect_lan_ip() -> str:
@@ -42,7 +59,7 @@ def get_state(request_app):
     return request_app.state
 
 
-def register_routes(app, engine, monitor_loop):
+def register_routes(app, engine, monitor_loop, get_current_user):
     @app.get("/api/network-info")
     def network_info():
         lan_ip = _detect_lan_ip()
@@ -54,7 +71,7 @@ def register_routes(app, engine, monitor_loop):
         }
 
     @app.get("/api/preview")
-    def get_preview():
+    def get_preview(_: dict = Depends(get_current_user)):
         """Screenshot terakhir yang di-capture, lengkap dengan kotak tile
         yang terdeteksi (hijau = sudah terkonfirmasi jadi peserta, abu-abu
         = belum). Bisa dipanggil kapan saja, termasuk sebelum sesi dimulai,
@@ -66,7 +83,7 @@ def register_routes(app, engine, monitor_loop):
         return Response(content=jpeg, media_type="image/jpeg")
 
     @app.get("/api/session", response_model=SessionInfo)
-    def get_session():
+    def get_session(_: dict = Depends(get_current_user)):
         row = engine.db.get_active_session()
         if not row:
             raise HTTPException(404, "No active session")
@@ -79,7 +96,7 @@ def register_routes(app, engine, monitor_loop):
         )
 
     @app.post("/api/session/start")
-    async def start_session():
+    async def start_session(_: dict = Depends(get_current_user)):
         session_id = engine.start_session()
         # Di deployment tanpa akses layar lokal (mis. cloud), matikan lewat
         # capture.enable_local_capture: false di config.yaml - host memakai
@@ -90,13 +107,13 @@ def register_routes(app, engine, monitor_loop):
         return {"session_id": session_id, "status": "started"}
 
     @app.post("/api/session/stop")
-    async def stop_session():
+    async def stop_session(_: dict = Depends(get_current_user)):
         await monitor_loop.stop()
         engine.stop_session()
         return {"status": "stopped"}
 
     @app.post("/api/participants/name")
-    def set_participant_name(update: ParticipantNameUpdate):
+    def set_participant_name(update: ParticipantNameUpdate, _: dict = Depends(get_current_user)):
         engine.set_participant_name(update.tile_index, update.name)
         return {"status": "ok"}
 
@@ -105,13 +122,12 @@ def register_routes(app, engine, monitor_loop):
         participant_name: str,
         file: UploadFile = File(...),
         x_ingest_token: str | None = Header(default=None),
+        authorization: str | None = Header(default=None),
     ):
         """Menerima satu frame per peserta dari sumber eksternal (mis. bot
         Zoom Meeting SDK), sebagai alternatif screen-capture Skenario B.
         Peserta diidentifikasi lewat nama asli, bukan tebakan posisi tile."""
-        expected_token = CONFIG.bot_ingest.get("token")
-        if expected_token and expected_token != "change-me" and x_ingest_token != expected_token:
-            raise HTTPException(401, "Invalid or missing X-Ingest-Token")
+        _authorize_ingest(x_ingest_token, authorization)
 
         if not engine.session_id:
             raise HTTPException(409, "No active session - call /api/session/start first")
@@ -136,15 +152,14 @@ def register_routes(app, engine, monitor_loop):
     async def ingest_screen(
         file: UploadFile = File(...),
         x_ingest_token: str | None = Header(default=None),
+        authorization: str | None = Header(default=None),
     ):
         """Menerima satu screenshot gallery-view penuh dari browser host
         (lewat getDisplayMedia), sebagai alternatif screen-capture lokal
         (mss) untuk skenario deploy di cloud yang tidak punya akses layar
         lokal. Frame ini melalui pipeline yang sama persis dengan
         run_cycle(): tile-split lalu deteksi per tile."""
-        expected_token = CONFIG.bot_ingest.get("token")
-        if expected_token and expected_token != "change-me" and x_ingest_token != expected_token:
-            raise HTTPException(401, "Invalid or missing X-Ingest-Token")
+        _authorize_ingest(x_ingest_token, authorization)
 
         if not engine.session_id:
             raise HTTPException(409, "No active session - call /api/session/start first")
@@ -183,7 +198,7 @@ def register_routes(app, engine, monitor_loop):
         return {"participant_id": participant_id, "history": history}
 
     @app.get("/api/export/csv")
-    def export_csv_endpoint():
+    def export_csv_endpoint(_: dict = Depends(get_current_user)):
         row = engine.db.get_active_session()
         if not row:
             raise HTTPException(404, "No active session")
@@ -195,7 +210,7 @@ def register_routes(app, engine, monitor_loop):
         )
 
     @app.get("/api/export/json")
-    def export_json_endpoint():
+    def export_json_endpoint(_: dict = Depends(get_current_user)):
         row = engine.db.get_active_session()
         if not row:
             raise HTTPException(404, "No active session")

@@ -1,5 +1,17 @@
 import { Download } from "lucide-react";
-import { API_BASE } from "../api";
+import { authFetch } from "../auth";
+
+async function downloadExport(path, filename) {
+  const res = await authFetch(path);
+  if (!res.ok) return;
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function SessionSummary({ participants }) {
   return (
@@ -7,18 +19,18 @@ export default function SessionSummary({ participants }) {
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-ink">Ringkasan Sesi</h2>
         <div className="flex gap-2">
-          <a
-            href={`${API_BASE}/api/export/csv`}
+          <button
+            onClick={() => downloadExport("/api/export/csv", "sawala-session.csv")}
             className="inline-flex items-center gap-1 rounded-lg border border-ink px-3 py-1.5 text-xs text-ink hover:bg-ink hover:text-paper"
           >
             <Download size={14} /> CSV
-          </a>
-          <a
-            href={`${API_BASE}/api/export/json`}
+          </button>
+          <button
+            onClick={() => downloadExport("/api/export/json", "sawala-session.json")}
             className="inline-flex items-center gap-1 rounded-lg border border-ink px-3 py-1.5 text-xs text-ink hover:bg-ink hover:text-paper"
           >
             <Download size={14} /> JSON
-          </a>
+          </button>
         </div>
       </div>
 

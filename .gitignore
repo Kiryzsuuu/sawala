@@ -21,6 +21,7 @@ models/*.onnx
 # Secrets / local overrides
 .env
 .env.*
+!.env.example
 config.local.yaml
 
 # Node / dashboard

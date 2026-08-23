@@ -10,6 +10,14 @@ PyYAML>=6.0.1
 websockets>=12.0
 python-multipart>=0.0.9  # dibutuhkan FastAPI untuk menerima file upload (endpoint ingest bot)
 
+# Auth (login sistem)
+passlib[bcrypt]>=1.7.4
+bcrypt<4.1               # passlib 1.7.4 belum kompatibel dengan bcrypt>=4.1
+pyjwt>=2.8.0
+python-dotenv>=1.0.1
+pymongo>=4.6              # penyimpanan user/akun untuk sistem login
+email-validator>=2.1      # dibutuhkan pydantic EmailStr
+
 # Opsional (berat, aktifkan jika butuh deteksi HP / ekspresi lengkap)
 # ultralytics>=8.1.0
 # deepface>=0.0.89
