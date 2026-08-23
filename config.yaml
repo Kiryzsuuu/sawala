@@ -1,0 +1,45 @@
+capture:
+  interval_seconds: 3          # Seberapa sering capture layar
+  region: null                 # null = full monitor utama; atau [x, y, width, height]
+  tile_grid: "auto"            # auto / "2x2" / "3x3" / "4x4"
+  tile_min_size: 80            # Minimal ukuran tile (px) untuk dianalisis
+  tile_max_count: 49           # Batas jumlah tile wajar per meeting; di atas ini
+                                # dianggap capture bukan gallery view lalu fallback ke 2x2
+
+thresholds:
+  ear_fatigue: 0.25            # EAR dibawah ini = fatigue
+  ear_fatigue_frames: 20       # Berapa frame berturut-turut
+  phone_confidence: 0.5        # YOLO confidence untuk HP
+  liveness_score: 0.6          # Skor minimum dianggap orang asli
+  smile_confidence: 0.6        # Skor minimum dianggap senyum
+  head_pitch_fatigue_deg: 20   # Sudut tunduk kepala dianggap indikasi fatigue
+
+face_detection:
+  min_detection_confidence: 0.5  # Ambang keyakinan minimal MediaPipe supaya
+                                  # sebuah tile dianggap benar-benar berisi wajah.
+                                  # Naikkan (misal 0.7) kalau banyak salah deteksi
+                                  # (wajah hantu dari elemen UI/background);
+                                  # turunkan (misal 0.3) kalau wajah asli malah
+                                  # sering tidak terdeteksi (misal pencahayaan gelap).
+  min_tracking_confidence: 0.5   # Ambang keyakinan untuk melanjutkan tracking
+                                  # wajah/tangan/landmark di frame berikutnya.
+
+bot_ingest:
+  token: "change-me"           # Shared secret yang wajib dikirim bot (mis. bot Zoom
+                                # Meeting SDK) di header X-Ingest-Token saat push frame
+                                # ke /api/ingest/frame. Ganti ke nilai acak sebelum dipakai,
+                                # karena endpoint ini bisa diakses dari jaringan (0.0.0.0).
+
+database:
+  path: "./data/session.db"
+
+api:
+  host: "0.0.0.0"              # Dengar di semua network interface supaya peserta lain
+                                # di jaringan/WiFi yang sama bisa buka halaman monitor
+                                # milik mereka sendiri. Pakai "localhost" kalau hanya
+                                # host sendiri yang perlu akses.
+  port: 8000
+
+logging:
+  level: "INFO"
+  file: "./logs/monitor.log"

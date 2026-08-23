@@ -1,0 +1,15 @@
+opencv-python>=4.9.0
+mediapipe==0.10.14  # newer releases (>=1.0) dropped the legacy `solutions` API used here
+numpy>=1.26.0
+scipy>=1.12.0
+mss>=9.0.1
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.6.0
+PyYAML>=6.0.1
+websockets>=12.0
+python-multipart>=0.0.9  # dibutuhkan FastAPI untuk menerima file upload (endpoint ingest bot)
+
+# Opsional (berat, aktifkan jika butuh deteksi HP / ekspresi lengkap)
+# ultralytics>=8.1.0
+# deepface>=0.0.89

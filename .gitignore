@@ -1,0 +1,39 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Data & runtime output (regenerated automatically, not source)
+data/
+logs/
+*.db
+*.db-journal
+*.log
+
+# Pretrained model weights (large binaries, downloaded on demand)
+models/*.pt
+models/*.onnx
+
+# Secrets / local overrides
+.env
+.env.*
+config.local.yaml
+
+# Node / dashboard
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
+npm-debug.log*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Ad-hoc scratch screenshots used while building docs (keep only curated ones in docs/screenshots)
+docs/preview_*.png
