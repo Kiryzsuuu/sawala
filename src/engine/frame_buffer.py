@@ -46,6 +46,11 @@ class FrameBuffer:
         participant (a face was detected on it at least once)."""
         return key in self._slots
 
+    def peek_slot(self, key: SlotKey) -> ParticipantSlot | None:
+        """Read-only lookup - unlike get_slot(), never creates a new slot
+        as a side effect."""
+        return self._slots.get(key)
+
     def get_slot(self, key: SlotKey) -> ParticipantSlot:
         if key not in self._slots:
             if isinstance(key, str):

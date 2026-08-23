@@ -43,6 +43,12 @@ class AnalysisEngine:
         self.buffer = FrameBuffer()
         self.session_id: str | None = None
         self.last_preview_jpeg: bytes | None = None
+        # Posisi kotak tiap peserta dalam koordinat layar fisik asli, hanya
+        # terisi kalau frame datang dari local screen capture (run_cycle) -
+        # itu satu-satunya sumber yang koordinatnya benar-benar cocok
+        # dengan layar Windows sungguhan, dipakai overlay AR. Frame dari
+        # browser (getDisplayMedia) tidak punya info posisi layar asli.
+        self.last_tile_screen_positions: dict[SlotKey, tuple[int, int, int, int]] = {}
 
     def _get_capture(self) -> ScreenCapture:
         if self._capture is None:
@@ -133,13 +139,20 @@ class AnalysisEngine:
             flags=flags,
         )
 
-    def process_screen_frame(self, frame: np.ndarray) -> list[ParticipantStatus]:
+    def process_screen_frame(
+        self, frame: np.ndarray, screen_offset: tuple[int, int] | None = None
+    ) -> list[ParticipantStatus]:
         """Split one full gallery-view frame into tiles and run the full
         pipeline on each (Skenario B), regardless of where the frame came
         from: local ScreenCapture.grab() (run_cycle) or a browser upload
         via getDisplayMedia (the /api/ingest/screen endpoint, used when
         the backend runs somewhere without local display access, e.g. a
-        cloud deployment). Persists and returns the statuses for this tick."""
+        cloud deployment). Persists and returns the statuses for this tick.
+
+        `screen_offset` is the (left, top) of the captured region in real
+        physical screen coordinates - only known for local capture, since
+        a browser-captured frame's on-screen position isn't knowable from
+        here. When given, tile positions are recorded for the AR overlay."""
         if not self.session_id:
             raise RuntimeError("No active session - call start_session() first")
 
@@ -147,10 +160,17 @@ class AnalysisEngine:
         now_iso = datetime.now(timezone.utc).isoformat()
         statuses: list[ParticipantStatus] = []
 
+        if screen_offset is not None:
+            self.last_tile_screen_positions = {}
+        offset_x, offset_y = screen_offset or (0, 0)
+
         for tile in tiles:
             status = self._process_frame(tile.index, tile.image, now_iso)
             if status is not None:
                 statuses.append(status)
+                if screen_offset is not None:
+                    x, y, w, h = tile.bbox
+                    self.last_tile_screen_positions[tile.index] = (x + offset_x, y + offset_y, w, h)
 
         for status in statuses:
             self.db.insert_snapshot(self.session_id, status)
@@ -166,8 +186,29 @@ class AnalysisEngine:
         statuses for this tick."""
         if not self.session_id:
             raise RuntimeError("No active session - call start_session() first")
-        frame = self._get_capture().grab()
-        return self.process_screen_frame(frame)
+        capture = self._get_capture()
+        frame = capture.grab()
+        offset = (capture.region["left"], capture.region["top"])
+        return self.process_screen_frame(frame, screen_offset=offset)
+
+    def overlay_data(self) -> list[dict]:
+        """Current confirmed participants with their on-screen tile
+        position, for the AR overlay window. Only meaningful when the
+        last cycle came from local screen capture (run_cycle)."""
+        results = []
+        for key, pos in self.last_tile_screen_positions.items():
+            slot = self.buffer.peek_slot(key)
+            if slot is None:
+                continue
+            x, y, w, h = pos
+            results.append({
+                "participant_id": slot.participant_id,
+                "name": slot.name,
+                "x": x, "y": y, "width": w, "height": h,
+                "oncam": slot.oncam_state.oncam,
+                "fatigue_detected": slot.fatigue.fatigue_active,
+            })
+        return results
 
     def capture_preview(self) -> bytes:
         """Grab one frame and return an annotated preview JPEG showing the

@@ -17,7 +17,10 @@ datas = [
 binaries = []
 hiddenimports = []
 
-for pkg in ("mediapipe", "cv2", "uvicorn", "fastapi", "starlette", "pystray", "PIL"):
+for pkg in (
+    "mediapipe", "cv2", "uvicorn", "fastapi", "starlette", "pystray", "PIL",
+    "pymongo", "bson", "dns", "passlib", "jwt", "dotenv", "email_validator", "bcrypt",
+):
     pkg_datas, pkg_binaries, pkg_hiddenimports = collect_all(pkg)
     datas += pkg_datas
     binaries += pkg_binaries

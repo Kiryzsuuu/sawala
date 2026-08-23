@@ -34,6 +34,13 @@ def _authorize_ingest(x_ingest_token: str | None, authorization: str | None) -> 
     raise HTTPException(401, "Perlu login atau X-Ingest-Token yang valid")
 
 
+_LOOPBACK_ADDRESSES = {"127.0.0.1", "::1"}
+
+
+def _is_loopback_request(request: Request) -> bool:
+    return bool(request.client) and request.client.host in _LOOPBACK_ADDRESSES
+
+
 def _detect_lan_ip() -> str:
     """Best-effort LAN IP so the host can share a link participants on the
     same network can open. Doesn't actually send any traffic (UDP connect
@@ -75,6 +82,20 @@ def register_routes(app, engine, monitor_loop, get_current_user):
             "lan_ip": _detect_lan_ip(),
             "participant_link": participant_link,
         }
+
+    @app.get("/api/overlay-data")
+    def get_overlay_data(request: Request, authorization: str | None = Header(default=None)):
+        """Posisi layar tiap peserta yang terkonfirmasi, untuk jendela
+        overlay AR desktop. Cuma terisi kalau sumber capture-nya local
+        screen capture (run_cycle), bukan browser/bot. Dibuka tanpa login
+        dari localhost saja (overlay jalan di mesin yang sama dengan
+        server), supaya launcher desktop tidak perlu simpan kredensial."""
+        if not _is_loopback_request(request):
+            if not (authorization and authorization.startswith("Bearer ") and decode_access_token(
+                authorization.removeprefix("Bearer ").strip()
+            )):
+                raise HTTPException(401, "Endpoint ini hanya untuk localhost atau user yang sudah login")
+        return {"participants": engine.overlay_data()}
 
     @app.get("/api/preview")
     def get_preview(_: dict = Depends(get_current_user)):

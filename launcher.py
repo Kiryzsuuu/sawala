@@ -1,11 +1,15 @@
-"""Desktop launcher for Meeting Monitor.
+"""Desktop launcher for SAWALA.
 
 Starts the FastAPI server (which also serves the built dashboard, see
 src/api/main.py's static mount) in a background thread, opens the
 dashboard in the default browser once it's ready, and shows a system tray
 icon so the app behaves like an installed program rather than a bare
-terminal window: click the icon to reopen the dashboard, or quit from
-there to stop the server.
+terminal window: click the icon to reopen the dashboard, toggle the AR
+screen overlay, or quit from there to stop the server.
+
+Tkinter (the overlay) must run on the main thread, so the layout here is
+inverted from a typical tray-app: the tray icon runs detached on a
+background thread, and overlay.OverlayWindow.run() owns the main thread.
 """
 from __future__ import annotations
 
@@ -33,6 +37,7 @@ import uvicorn
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
 
+from overlay import OverlayWindow
 from src.utils.config import CONFIG
 from src.utils.logger import get_logger
 
@@ -88,22 +93,36 @@ def main() -> None:
     else:
         logger.error("Server did not become ready in time")
 
+    overlay = OverlayWindow()
+
     def on_open(icon, item):
         webbrowser.open(DASHBOARD_URL)
+
+    def on_toggle_overlay(icon, item):
+        is_now_visible = overlay.toggle()
+        logger.info("Overlay AR %s", "diaktifkan" if is_now_visible else "dimatikan")
 
     def on_quit(icon, item):
         logger.info("Quitting SAWALA")
         server_thread.stop()
         icon.stop()
+        overlay.close()
 
     menu = Menu(
         MenuItem("Buka Dashboard", on_open, default=True),
+        MenuItem("Tampilkan/Sembunyikan Overlay AR", on_toggle_overlay),
         MenuItem("Keluar", on_quit),
     )
 
     icon_image = Image.open(_icon_path())
     tray_icon = Icon("Sawala", icon_image, "SAWALA", menu)
-    tray_icon.run()
+
+    # Tray icon runs on its own thread so the main thread is free for
+    # Tkinter's mainloop (overlay.run(), below), which Tkinter requires.
+    tray_thread = threading.Thread(target=tray_icon.run, daemon=True)
+    tray_thread.start()
+
+    overlay.run()
 
 
 if __name__ == "__main__":

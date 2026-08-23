@@ -34,6 +34,7 @@ Name: "desktopicon"; Description: "Buat shortcut di Desktop"; GroupDescription: 
 [Files]
 Source: "dist\Sawala.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "config.yaml"; DestDir: "{app}"; Flags: onlyifdoesntexist
+Source: ".env.example"; DestDir: "{app}"; DestName: ".env"; Flags: onlyifdoesntexist
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "docs\PANDUAN-PENGGUNAAN.pdf"; DestDir: "{app}\docs"; Flags: ignoreversion
 
