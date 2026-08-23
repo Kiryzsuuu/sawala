@@ -3,7 +3,9 @@ services:
     build: .
     image: sawala:latest
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"  # cuma bisa diakses dari nginx di server yang sama, bukan langsung dari internet
+    env_file:
+      - .env
     volumes:
       - sawala-data:/app/data
       - sawala-logs:/app/logs
