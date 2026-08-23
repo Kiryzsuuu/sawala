@@ -8,8 +8,10 @@ __pycache__/
 .ruff_cache/
 
 # Data & runtime output (regenerated automatically, not source)
-data/
-logs/
+# Anchored to repo root (leading /) so this doesn't also match src/data/,
+# which is actual source code, not runtime output.
+/data/
+/logs/
 *.db
 *.db-journal
 *.log
@@ -31,9 +33,9 @@ dashboard/.vite/
 npm-debug.log*
 
 # Desktop packaging build output (regenerated via pyinstaller/ISCC, not source)
-build/
-dist/
-Output/
+/build/
+/dist/
+/Output/
 
 # Editor / OS
 .vscode/

@@ -73,34 +73,50 @@ capture + analisis. Region layar default adalah monitor utama penuh; atur
 Jangan aktifkan keduanya bersamaan di mesin yang sama, akan bentrok
 merebut index tile yang sama.
 
-## Deploy ke Cloud (Biznet Gio, atau host container lain)
+## Deploy ke Cloud (PM2 + Nginx, mis. Biznet Gio)
+
+Server perlu Python 3.10+, Node 18+, PM2, dan Nginx. Sistem paket opencv
+butuh `libgl1 libglib2.0-0 libsm6 libxext6 libxrender1` (apt).
 
 ```bash
-docker compose up -d --build
+git clone https://github.com/Kiryzsuuu/sawala.git && cd sawala
+
+python3 -m venv venv
+venv/bin/pip install -r requirements.txt
+
+cd dashboard && npm ci && npm run build && cd ..
+
+cp config.cloud.yaml config.yaml   # enable_local_capture: false - server tidak punya layar
+cp .env.example .env               # lalu isi nilai asli, JANGAN commit
+
+pm2 start deploy/ecosystem.config.js
+pm2 save
 ```
 
-Ini memakai `config.cloud.yaml` (bukan `config.yaml`) yang sudah
-`enable_local_capture: false`. Setelah container jalan:
+`run.py` adalah entry point tipis (`python -m src.api.main` lewat
+`runpy`) supaya PM2, yang butuh path file nyata, bisa menjalankannya -
+`deploy/ecosystem.config.js` sudah mengarah ke situ.
 
-1. Buka `http://<ip-server>:8000`
+Untuk Nginx, salin `deploy/nginx-sawala.conf` ke
+`/etc/nginx/sites-available/`, sesuaikan `server_name`, symlink ke
+`sites-enabled/`, lalu jalankan `certbot --nginx -d nama.domain.com` untuk
+HTTPS otomatis.
+
+Setelah jalan:
+
+1. Buka `https://nama-domain-kamu.com`, login pakai akun super admin
+   (`ADMIN_EMAIL`/`ADMIN_PASSWORD` di `.env`)
 2. Klik **Mulai Sesi**
 3. Klik **Aktifkan Screen Capture**, pilih jendela Zoom/Meet saat diminta
    browser
 
-### Penting Sebelum Deploy Publik
+### Login & Keamanan
 
-Aplikasi ini **tidak punya sistem login/autentikasi sama sekali**. Semua
-endpoint (termasuk Mulai/Hentikan Sesi dan export data) bisa diakses siapa
-pun yang tahu URL-nya. Untuk deploy yang bisa diakses dari internet:
-
-- Taruh di belakang reverse proxy (Nginx/Caddy) dengan HTTP Basic Auth, atau
-- Batasi akses lewat VPN/firewall/security group ke IP tertentu saja
-
-Docker image ini belum pernah di-build & dites end-to-end di lingkungan
-pembuatannya (tidak ada Docker terpasang saat development) - build dan uji
-dulu (`docker compose up --build`) sebelum dipakai produksi, dan siapkan
-untuk memperbaiki dependency sistem (`apt-get`) kalau ada modul native yang
-gagal load di container.
+Sejak fitur login ditambahkan, semua endpoint sensitif (Mulai/Hentikan
+Sesi, export data, ingest frame) butuh login. Akun super admin pertama
+dibuat otomatis dari `.env` saat server pertama kali jalan. Super admin
+bisa tambah/edit/hapus akun admin lain lewat tombol **Kelola User** di
+dashboard. **Ganti password default segera setelah login pertama kali.**
 
 ## Menjalankan Tes
 
