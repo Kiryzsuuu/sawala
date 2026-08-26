@@ -1,4 +1,4 @@
-/* SAWALA landing page — shared config store.
+/* SAWALA landing page - shared config store.
    Content is edited via admin.html and persisted in localStorage,
    so index.html always renders the latest saved version. */
 
@@ -25,7 +25,7 @@ const SAWALA_DEFAULT_CONFIG = {
     badge: "🟢 Live sekarang di dashboard kamu",
     titleBefore: "Pantau meeting Zoom & Meet, ",
     titleHighlight: "secara real-time.",
-    lead: "SAWALA menganalisis setiap tile peserta secara otomatis — OnCam/OffCam, penggunaan HP, tanda fatigue, sampai ekspresi — lalu menampilkannya langsung di dashboard live. Tanpa plugin, tanpa ribet.",
+    lead: "SAWALA menganalisis setiap tile peserta secara otomatis, OnCam/OffCam, penggunaan HP, tanda fatigue, sampai ekspresi, lalu menampilkannya langsung di dashboard live. Tanpa plugin, tanpa ribet.",
     primaryCtaLabel: "Mulai Sesi Gratis",
     primaryCtaHref: "/app",
     secondaryCtaLabel: "Lihat Cara Kerja",
@@ -119,7 +119,7 @@ const SAWALA_DEFAULT_CONFIG = {
       ]},
     ],
     copyright: "© 2026 SAWALA. Dibuat untuk monitoring meeting yang lebih baik.",
-    tagline: "Skenario B — Host Monitoring",
+    tagline: "Skenario B - Host Monitoring",
   },
 };
 
