@@ -76,6 +76,40 @@ function Test-CommandExists {
     return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Stop-StaleProcessOnPort {
+    <#
+        Kalau backend/dashboard dari run start.bat sebelumnya masih hidup
+        (mis. jendelanya ditutup paksa tanpa Ctrl+C, atau proses jadi
+        orphan), port-nya masih terpakai. uvicorn/vite yang baru akan gagal
+        bind ke port itu, tapi Wait-ForHttp di bawah tetap melihat endpoint
+        health merespons (dari proses LAMA) dan mengira semuanya sukses -
+        padahal yang jalan adalah kode basi dari sebelum perubahan
+        terakhir. Matikan dulu proses lama yang menempati port ini supaya
+        tiap run selalu memakai kode terbaru.
+    #>
+    param([int]$Port, [string]$ServiceName)
+
+    try {
+        $conns = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+    } catch {
+        return
+    }
+    if (-not $conns) { return }
+
+    $pids = $conns | Select-Object -ExpandProperty OwningProcess -Unique
+    foreach ($procId in $pids) {
+        try {
+            $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue
+            $procName = if ($proc) { $proc.ProcessName } else { "PID $procId" }
+            Write-Host "   (Menutup proses $ServiceName lama di port ${Port}: $procName)" -ForegroundColor DarkYellow
+            Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+        } catch {
+            # Proses mungkin sudah berhenti sendiri di antara pengecekan dan Stop-Process - aman diabaikan.
+        }
+    }
+    Start-Sleep -Seconds 1
+}
+
 function Wait-ForHttp {
     param([string]$Url, [int]$TimeoutSeconds = 60)
     $elapsed = 0
@@ -202,6 +236,8 @@ try {
 # ---------------------------------------------------------------------------
 Write-Step "Menjalankan backend (FastAPI + WebSocket) di jendela baru"
 
+Stop-StaleProcessOnPort -Port 8000 -ServiceName "backend"
+
 $backendCmd = "cd `"$ProjectRoot`"; & `"$venvPython`" -m src.api.main"
 Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", $backendCmd -WindowStyle Normal
 
@@ -216,6 +252,8 @@ if (Wait-ForHttp -Url $BackendUrl -TimeoutSeconds 60) {
 # 7. Jalankan dashboard di jendela terpisah
 # ---------------------------------------------------------------------------
 Write-Step "Menjalankan dashboard (Vite dev server) di jendela baru"
+
+Stop-StaleProcessOnPort -Port 5173 -ServiceName "dashboard"
 
 $frontendCmd = "cd `"$dashboardPath`"; npm run dev"
 Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", $frontendCmd -WindowStyle Normal
