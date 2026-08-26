@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAWALA — Site Settings</title>
+<style>
+  :root{
+    --blue:#0B5CFF; --blue-dark:#0842BF; --ink:#0e1116;
+    --gray-700:#4a4f57; --gray-500:#6b7280; --gray-200:#e5e7eb; --gray-100:#f4f6f8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--gray-100);color:var(--ink);
+  }
+  a{color:inherit;}
+  .topbar{
+    position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--gray-200);
+    padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  }
+  .topbar .brand{font-weight:800;font-size:18px;color:var(--blue);display:flex;align-items:center;gap:8px;}
+  .topbar .actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .wrap{max-width:920px;margin:0 auto;padding:28px 16px 80px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;
+    font-weight:700;font-size:13.5px;cursor:pointer;border:1px solid transparent;
+  }
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-primary:hover{background:var(--blue-dark);}
+  .btn-outline{background:#fff;border-color:var(--gray-200);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--blue);color:var(--blue);}
+  .btn-danger{background:#fff;border-color:#fecdca;color:#b42318;}
+  .btn-danger:hover{background:#fef3f2;}
+  .card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:22px;margin-bottom:20px;}
+  .card h2{font-size:16px;margin:0 0 4px;}
+  .card .hint{font-size:12.5px;color:var(--gray-500);margin-bottom:16px;}
+  label{display:block;font-size:12.5px;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
+  input[type=text], textarea{
+    width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:8px;
+    font-size:14px;font-family:inherit;margin-bottom:14px;background:#fdfdfd;
+  }
+  textarea{resize:vertical;min-height:56px;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:640px){ .row{grid-template-columns:1fr;} }
+  .sub-item{border:1px dashed var(--gray-200);border-radius:10px;padding:14px;margin-bottom:12px;position:relative;background:var(--gray-100);}
+  .sub-item .remove-btn{
+    position:absolute;top:8px;right:8px;font-size:11px;color:#b42318;font-weight:700;
+    background:#fff;border:1px solid #fecdca;border-radius:6px;padding:3px 8px;cursor:pointer;
+  }
+  .add-btn{font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;background:none;border:none;padding:6px 0;}
+  .image-field{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .image-field img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--gray-200);background:#fff;}
+  .image-field .placeholder{
+    width:64px;height:64px;border-radius:8px;border:1px dashed var(--gray-200);
+    display:flex;align-items:center;justify-content:center;color:var(--gray-500);font-size:11px;text-align:center;
+  }
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;
+    opacity:0;transition:all .2s ease;pointer-events:none;z-index:100;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #login-screen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .login-box{background:#fff;border:1px solid var(--gray-200);border-radius:16px;padding:36px;max-width:360px;width:100%;text-align:center;}
+  .login-box h1{font-size:20px;margin-bottom:6px;}
+  .login-box p{font-size:13.5px;color:var(--gray-500);margin-bottom:20px;}
+  .login-box input{margin-bottom:12px;}
+  .login-box .btn{width:100%;justify-content:center;}
+  .error-msg{color:#b42318;font-size:13px;margin-bottom:10px;display:none;}
+  #app{display:none;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <h1>🔒 Site Settings</h1>
+    <p>Masukkan password admin untuk mengelola konten landing page SAWALA.</p>
+    <div class="error-msg" id="login-error">Password salah, coba lagi.</div>
+    <input type="text" id="login-password" placeholder="Password admin" autocomplete="off">
+    <button class="btn btn-primary" id="login-btn">Masuk</button>
+    <p style="margin-top:14px;font-size:12px;color:var(--gray-500);">Default: <code>sawala-admin</code> (ganti di kode admin.html sebelum production)</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand">⚙ SAWALA Site Settings</div>
+    <div class="actions">
+      <a href="index.html" target="_blank" class="btn btn-outline">👁 Lihat Landing Page</a>
+      <button class="btn btn-outline" id="export-btn">⬇ Export JSON</button>
+      <button class="btn btn-outline" id="import-btn">⬆ Import JSON</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none;">
+      <button class="btn btn-danger" id="reset-btn">↺ Reset Default</button>
+      <button class="btn btn-primary" id="save-btn">💾 Simpan Perubahan</button>
+    </div>
+  </div>
+
+  <div class="wrap" id="form-root"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script>
+(function(){
+  const ADMIN_PASSWORD = "sawala-admin"; // ganti sebelum dipakai di production
+  const SESSION_KEY = "sawala_admin_session";
+
+  const loginScreen = document.getElementById("login-screen");
+  const app = document.getElementById("app");
+
+  function tryEnter(pwd) {
+    if (pwd === ADMIN_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, "1");
+      loginScreen.style.display = "none";
+      app.style.display = "block";
+      renderForm();
+      return true;
+    }
+    return false;
+  }
+
+  document.getElementById("login-btn").addEventListener("click", () => {
+    const pwd = document.getElementById("login-password").value;
+    if (!tryEnter(pwd)) document.getElementById("login-error").style.display = "block";
+  });
+  document.getElementById("login-password").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("login-btn").click();
+  });
+
+  if (sessionStorage.getItem(SESSION_KEY) === "1") tryEnter(ADMIN_PASSWORD);
+
+  // ---------- state ----------
+  let cfg = sawalaLoadConfig();
+
+  function toast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  function fileToBase64(file, cb) {
+    const reader = new FileReader();
+    reader.onload = () => cb(reader.result);
+    reader.readAsDataURL(file);
+  }
+
+  function imageField(label, hint, getVal, setVal) {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = `<label>${label}</label>`;
+    const field = document.createElement("div");
+    field.className = "image-field";
+    const preview = document.createElement(getVal() ? "img" : "div");
+    if (getVal()) { preview.src = getVal(); }
+    else { preview.className = "placeholder"; preview.textContent = "No image"; }
+    const input = document.createElement("input");
+    input.type = "file"; input.accept = "image/*";
+    input.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      fileToBase64(file, (b64) => {
+        setVal(b64);
+        toast("Gambar dikonversi ke base64. Klik Simpan untuk menerapkan.");
+      });
+    });
+    const clearBtn = document.createElement("button");
+    clearBtn.className = "btn btn-outline"; clearBtn.type = "button"; clearBtn.textContent = "Hapus";
+    clearBtn.addEventListener("click", () => { setVal(""); renderForm(); });
+    field.append(preview, input, clearBtn);
+    wrap.appendChild(field);
+    if (hint) { const h = document.createElement("div"); h.className = "hint"; h.style.marginBottom = "10px"; h.textContent = hint; wrap.appendChild(h); }
+    return wrap;
+  }
+
+  function textField(label, getVal, setVal, multiline) {
+    const wrap = document.createElement("div");
+    const lab = document.createElement("label"); lab.textContent = label;
+    const input = document.createElement(multiline ? "textarea" : "input");
+    if (!multiline) input.type = "text";
+    input.value = getVal();
+    input.addEventListener("input", (e) => setVal(e.target.value));
+    wrap.append(lab, input);
+    return wrap;
+  }
+
+  function section(title, hint, builder) {
+    const card = document.createElement("div");
+    card.className = "card";
+    const h = document.createElement("h2"); h.textContent = title;
+    card.appendChild(h);
+    if (hint) { const p = document.createElement("div"); p.className = "hint"; p.textContent = hint; card.appendChild(p); }
+    builder(card);
+    return card;
+  }
+
+  function listEditor(container, items, itemLabel, renderItem, makeEmpty) {
+    const list = document.createElement("div");
+    items.forEach((item, i) => {
+      const box = document.createElement("div");
+      box.className = "sub-item";
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "remove-btn"; removeBtn.type = "button"; removeBtn.textContent = "Hapus";
+      removeBtn.addEventListener("click", () => { items.splice(i, 1); renderForm(); });
+      box.appendChild(removeBtn);
+      renderItem(box, item, i);
+      list.appendChild(box);
+    });
+    container.appendChild(list);
+    const addBtn = document.createElement("button");
+    addBtn.className = "add-btn"; addBtn.type = "button"; addBtn.textContent = `+ Tambah ${itemLabel}`;
+    addBtn.addEventListener("click", () => { items.push(makeEmpty()); renderForm(); });
+    container.appendChild(addBtn);
+  }
+
+  function renderForm() {
+    const root = document.getElementById("form-root");
+    root.innerHTML = "";
+
+    root.appendChild(section("Brand", "Nama & logo yang tampil di navbar dan footer.", (c) => {
+      c.appendChild(textField("Nama Brand", () => cfg.brand.name, (v) => cfg.brand.name = v));
+      c.appendChild(imageField("Logo (opsional)", "Jika diisi, logo gambar menggantikan teks nama brand.", () => cfg.brand.logoImage, (v) => cfg.brand.logoImage = v));
+    }));
+
+    root.appendChild(section("Navigasi", "Menu di header dan tombol CTA utama.", (c) => {
+      listEditor(c, cfg.nav.links, "Menu", (box, item) => {
+        box.appendChild(textField("Label", () => item.label, (v) => item.label = v));
+        box.appendChild(textField("Link (href)", () => item.href, (v) => item.href = v));
+      }, () => ({ label: "Menu Baru", href: "#" }));
+      const row = document.createElement("div"); row.className = "row";
+      row.appendChild(textField("Label Login", () => cfg.nav.loginLabel, (v) => cfg.nav.loginLabel = v));
+      row.appendChild(textField("Label Tombol CTA", () => cfg.nav.ctaLabel, (v) => cfg.nav.ctaLabel = v));
+      c.appendChild(row);
+      c.appendChild(textField("Link Tombol CTA", () => cfg.nav.ctaHref, (v) => cfg.nav.ctaHref = v));
+    }));
+
+    root.appendChild(section("Hero", "Bagian utama paling atas halaman.", (c) => {
+      c.appendChild(textField("Badge kecil", () => cfg.hero.badge, (v) => cfg.hero.badge = v));
+      c.appendChild(textField("Judul (bagian normal)", () => cfg.hero.titleBefore, (v) => cfg.hero.titleBefore = v));
+      c.appendChild(textField("Judul (bagian highlight biru)", () => cfg.hero.titleHighlight, (v) => cfg.hero.titleHighlight = v));
+      c.appendChild(textField("Deskripsi", () => cfg.hero.lead, (v) => cfg.hero.lead = v, true));
+      const row = document.createElement("div"); row.className = "row";
+      row.appendChild(textField("Tombol Utama - Label", () => cfg.hero.primaryCtaLabel, (v) => cfg.hero.primaryCtaLabel = v));
+      row.appendChild(textField("Tombol Utama - Link", () => cfg.hero.primaryCtaHref, (v) => cfg.hero.primaryCtaHref = v));
+      c.appendChild(row);
+      const row2 = document.createElement("div"); row2.className = "row";
+      row2.appendChild(textField("Tombol Sekunder - Label", () => cfg.hero.secondaryCtaLabel, (v) => cfg.hero.secondaryCtaLabel = v));
+      row2.appendChild(textField("Tombol Sekunder - Link", () => cfg.hero.secondaryCtaHref, (v) => cfg.hero.secondaryCtaHref = v));
+      c.appendChild(row2);
+      c.appendChild(textField("Trust line", () => cfg.hero.trustLine, (v) => cfg.hero.trustLine = v));
+      c.appendChild(imageField("Gambar Hero (opsional)", "Jika diisi, menggantikan ilustrasi grid tile bawaan.", () => cfg.hero.image, (v) => cfg.hero.image = v));
+    }));
+
+    root.appendChild(section("Baris Logo Partner", "Daftar nama platform yang ditampilkan di bawah hero.", (c) => {
+      c.appendChild(textField("Label", () => cfg.logos.label, (v) => cfg.logos.label = v));
+      listEditor(c, cfg.logos.items.map((v, i) => ({ v, i })), "Platform", (box, wrapped) => {
+        box.appendChild(textField("Nama Platform", () => cfg.logos.items[wrapped.i], (v) => cfg.logos.items[wrapped.i] = v));
+      }, () => { cfg.logos.items.push("Platform Baru"); return { v: "", i: cfg.logos.items.length - 1 }; });
+    }));
+
+    root.appendChild(section("Fitur Utama", "Kartu fitur di bagian tengah halaman.", (c) => {
+      c.appendChild(textField("Kicker", () => cfg.features.kicker, (v) => cfg.features.kicker = v));
+      c.appendChild(textField("Judul", () => cfg.features.title, (v) => cfg.features.title = v));
+      c.appendChild(textField("Subjudul", () => cfg.features.subtitle, (v) => cfg.features.subtitle = v));
+      listEditor(c, cfg.features.items, "Fitur", (box, item) => {
+        const row = document.createElement("div"); row.className = "row";
+        row.appendChild(textField("Icon (emoji)", () => item.icon, (v) => item.icon = v));
+        row.appendChild(textField("Judul", () => item.title, (v) => item.title = v));
+        box.appendChild(row);
+        box.appendChild(textField("Deskripsi", () => item.desc, (v) => item.desc = v, true));
+      }, () => ({ icon: "✨", title: "Fitur Baru", desc: "Deskripsi fitur." }));
+    }));
+
+    root.appendChild(section("Cara Kerja (Steps)", "Langkah-langkah penggunaan.", (c) => {
+      c.appendChild(textField("Kicker", () => cfg.steps.kicker, (v) => cfg.steps.kicker = v));
+      c.appendChild(textField("Judul", () => cfg.steps.title, (v) => cfg.steps.title = v));
+      listEditor(c, cfg.steps.items, "Langkah", (box, item) => {
+        box.appendChild(textField("Judul Langkah", () => item.title, (v) => item.title = v));
+        box.appendChild(textField("Deskripsi", () => item.desc, (v) => item.desc = v, true));
+      }, () => ({ title: "Langkah Baru", desc: "Deskripsi langkah." }));
+    }));
+
+    root.appendChild(section("Insight Real-Time", "Section split dengan checklist dan mockup statistik.", (c) => {
+      c.appendChild(textField("Kicker", () => cfg.insight.kicker, (v) => cfg.insight.kicker = v));
+      c.appendChild(textField("Judul", () => cfg.insight.title, (v) => cfg.insight.title = v));
+      c.appendChild(textField("Deskripsi", () => cfg.insight.desc, (v) => cfg.insight.desc = v, true));
+      listEditor(c, cfg.insight.checklist.map((v, i) => ({ v, i })), "Poin", (box, wrapped) => {
+        box.appendChild(textField("Poin Checklist", () => cfg.insight.checklist[wrapped.i], (v) => cfg.insight.checklist[wrapped.i] = v));
+      }, () => { cfg.insight.checklist.push("Poin baru"); return { v: "", i: cfg.insight.checklist.length - 1 }; });
+      const row = document.createElement("div"); row.className = "row";
+      row.appendChild(textField("Label Tombol", () => cfg.insight.ctaLabel, (v) => cfg.insight.ctaLabel = v));
+      row.appendChild(textField("Link Tombol", () => cfg.insight.ctaHref, (v) => cfg.insight.ctaHref = v));
+      c.appendChild(row);
+      c.appendChild(imageField("Gambar Insight (opsional)", "Jika diisi, menggantikan mockup statistik bawaan.", () => cfg.insight.image, (v) => cfg.insight.image = v));
+    }));
+
+    root.appendChild(section("Harga", "Paket harga yang ditawarkan.", (c) => {
+      c.appendChild(textField("Kicker", () => cfg.pricing.kicker, (v) => cfg.pricing.kicker = v));
+      c.appendChild(textField("Judul", () => cfg.pricing.title, (v) => cfg.pricing.title = v));
+      c.appendChild(textField("Subjudul", () => cfg.pricing.subtitle, (v) => cfg.pricing.subtitle = v));
+      listEditor(c, cfg.pricing.plans, "Paket", (box, item) => {
+        box.appendChild(textField("Nama Paket", () => item.name, (v) => item.name = v));
+        box.appendChild(textField("Deskripsi", () => item.desc, (v) => item.desc = v, true));
+        const row = document.createElement("div"); row.className = "row";
+        row.appendChild(textField("Harga (teks)", () => item.price, (v) => item.price = v));
+        row.appendChild(textField("Label Tombol", () => item.ctaLabel, (v) => item.ctaLabel = v));
+        box.appendChild(row);
+        box.appendChild(textField("Link Tombol", () => item.ctaHref, (v) => item.ctaHref = v));
+        const dark = document.createElement("label");
+        dark.style.display = "flex"; dark.style.alignItems = "center"; dark.style.gap = "8px"; dark.style.fontWeight = "600";
+        const chk = document.createElement("input"); chk.type = "checkbox"; chk.checked = !!item.dark; chk.style.width = "auto"; chk.style.margin = "0";
+        chk.addEventListener("change", (e) => item.dark = e.target.checked);
+        dark.append(chk, document.createTextNode(" Tampilkan gelap (highlight)"));
+        box.appendChild(dark);
+      }, () => ({ name: "Paket Baru", desc: "Deskripsi paket.", price: "Rp0", ctaLabel: "Pilih", ctaHref: "#coba", dark: false }));
+    }));
+
+    root.appendChild(section("CTA Banner", "Banner ajakan di dekat penutup halaman.", (c) => {
+      c.appendChild(textField("Judul", () => cfg.ctaBanner.title, (v) => cfg.ctaBanner.title = v));
+      c.appendChild(textField("Subjudul", () => cfg.ctaBanner.subtitle, (v) => cfg.ctaBanner.subtitle = v));
+      const row = document.createElement("div"); row.className = "row";
+      row.appendChild(textField("Tombol Utama - Label", () => cfg.ctaBanner.primaryLabel, (v) => cfg.ctaBanner.primaryLabel = v));
+      row.appendChild(textField("Tombol Utama - Link", () => cfg.ctaBanner.primaryHref, (v) => cfg.ctaBanner.primaryHref = v));
+      c.appendChild(row);
+      const row2 = document.createElement("div"); row2.className = "row";
+      row2.appendChild(textField("Tombol Sekunder - Label", () => cfg.ctaBanner.secondaryLabel, (v) => cfg.ctaBanner.secondaryLabel = v));
+      row2.appendChild(textField("Tombol Sekunder - Link", () => cfg.ctaBanner.secondaryHref, (v) => cfg.ctaBanner.secondaryHref = v));
+      c.appendChild(row2);
+    }));
+
+    root.appendChild(section("Footer", "Deskripsi, kolom link, dan copyright.", (c) => {
+      c.appendChild(textField("Deskripsi Singkat", () => cfg.footer.description, (v) => cfg.footer.description = v, true));
+      listEditor(c, cfg.footer.columns, "Kolom", (box, col) => {
+        box.appendChild(textField("Judul Kolom", () => col.title, (v) => col.title = v));
+        listEditor(box, col.links, "Link", (linkBox, link) => {
+          const row = document.createElement("div"); row.className = "row";
+          row.appendChild(textField("Label", () => link.label, (v) => link.label = v));
+          row.appendChild(textField("Href", () => link.href, (v) => link.href = v));
+          linkBox.appendChild(row);
+        }, () => ({ label: "Link Baru", href: "#" }));
+      }, () => ({ title: "Kolom Baru", links: [] }));
+      const row = document.createElement("div"); row.className = "row";
+      row.appendChild(textField("Copyright", () => cfg.footer.copyright, (v) => cfg.footer.copyright = v));
+      row.appendChild(textField("Tagline", () => cfg.footer.tagline, (v) => cfg.footer.tagline = v));
+      c.appendChild(row);
+    }));
+  }
+
+  document.getElementById("save-btn").addEventListener("click", () => {
+    sawalaSaveConfig(cfg);
+    toast("Perubahan disimpan! Refresh landing page untuk melihat hasilnya.");
+  });
+
+  document.getElementById("reset-btn").addEventListener("click", () => {
+    if (!confirm("Kembalikan semua pengaturan ke default? Perubahan tersimpan akan hilang.")) return;
+    sawalaResetConfig();
+    cfg = sawalaLoadConfig();
+    renderForm();
+    toast("Dikembalikan ke pengaturan default.");
+  });
+
+  document.getElementById("export-btn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "sawala-site-config.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("import-btn").addEventListener("click", () => document.getElementById("import-file").click());
+  document.getElementById("import-file").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const imported = JSON.parse(reader.result);
+        cfg = sawalaDeepMerge(SAWALA_DEFAULT_CONFIG, imported);
+        renderForm();
+        toast("Konfigurasi berhasil diimpor. Klik Simpan untuk menerapkan.");
+      } catch (err) {
+        alert("File JSON tidak valid.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+})();
+</script>
+</body>
+</html>
