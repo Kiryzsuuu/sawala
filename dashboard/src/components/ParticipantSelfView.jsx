@@ -45,7 +45,7 @@ export default function ParticipantSelfView() {
   const me = participants.find((p) => p.id === selectedId);
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-white px-5 py-8 font-sans text-ink">
+    <div className="mx-auto min-h-screen max-w-md bg-paper px-5 py-8 font-sans text-ink">
       <div className="mb-6 text-center">
         <h1 className="text-lg font-bold">Status Monitor Saya</h1>
         <p className="mt-1 text-xs text-neutral-500">
@@ -58,7 +58,7 @@ export default function ParticipantSelfView() {
         <select
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
-          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-ink"
+          className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink"
         >
           <option value="">Pilih nama saya</option>
           {participants.map((p) => (
@@ -86,7 +86,7 @@ export default function ParticipantSelfView() {
 
       {me && (
         <div className="space-y-4">
-          <div className="rounded-xl border border-neutral-300 p-5 text-center">
+          <div className="rounded-xl border border-line p-5 text-center">
             {me.oncam ? (
               <Camera className="mx-auto mb-2" size={28} />
             ) : (
@@ -106,7 +106,7 @@ export default function ParticipantSelfView() {
                   const info = FLAG_LABELS[f];
                   const Icon = info.icon;
                   return (
-                    <div key={f} className="flex items-start gap-2 rounded-lg border border-neutral-300 p-3 text-sm">
+                    <div key={f} className="flex items-start gap-2 rounded-lg border border-line p-3 text-sm">
                       <Icon size={16} className="mt-0.5 flex-shrink-0" />
                       <span>{info.text}</span>
                     </div>
@@ -114,7 +114,7 @@ export default function ParticipantSelfView() {
                 })}
             </div>
           ) : (
-            <div className="flex items-center gap-2 rounded-lg border border-neutral-300 p-3 text-sm">
+            <div className="flex items-center gap-2 rounded-lg border border-line p-3 text-sm">
               <Check size={16} className="flex-shrink-0" />
               <span>Tidak ada catatan khusus saat ini.</span>
             </div>

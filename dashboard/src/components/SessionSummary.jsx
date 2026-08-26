@@ -15,7 +15,7 @@ async function downloadExport(path, filename) {
 
 export default function SessionSummary({ participants }) {
   return (
-    <div className="rounded-xl border border-neutral-300 bg-white p-4">
+    <div className="rounded-xl border border-line bg-card p-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-ink">Ringkasan Sesi</h2>
         <div className="flex gap-2">
@@ -37,7 +37,7 @@ export default function SessionSummary({ participants }) {
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-left text-xs text-neutral-600">
           <thead>
-            <tr className="border-b border-neutral-300">
+            <tr className="border-b border-line">
               <th className="py-2 pr-4">Peserta</th>
               <th className="py-2 pr-4">Status</th>
               <th className="py-2 pr-4">Flags</th>

@@ -26,7 +26,7 @@ export default function ParticipantLinkPanel() {
   }
 
   return (
-    <div className="mb-6 rounded-xl border border-neutral-300 bg-white p-4">
+    <div className="mb-6 rounded-xl border border-line bg-card p-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-ink">
         <Users size={16} />
         Link untuk Peserta
@@ -36,7 +36,7 @@ export default function ParticipantLinkPanel() {
         mereka sendiri saja.
       </p>
       <div className="mt-3 flex items-center gap-2">
-        <code className="flex-1 truncate rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs text-ink">
+        <code className="flex-1 truncate rounded-lg border border-line bg-card px-3 py-2 text-xs text-ink">
           {link}
         </code>
         <button

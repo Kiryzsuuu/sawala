@@ -5,8 +5,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: "#ffffff",
+        paper: "#f7f5f0",
+        "paper-alt": "#efebe1",
+        card: "#fbfaf7",
         ink: "#1a1a1a",
+        "ink-soft": "#3f3d38",
+        muted: "#7a776e",
+        line: "#e3ded2",
       },
       fontFamily: {
         sans: [

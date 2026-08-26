@@ -89,7 +89,7 @@ export default function BrowserScreenCapture() {
   }
 
   return (
-    <div className="rounded-xl border border-neutral-300 bg-white p-4">
+    <div className="rounded-xl border border-line bg-card p-4">
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2 text-sm font-semibold text-ink">

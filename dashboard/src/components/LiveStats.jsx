@@ -2,7 +2,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 
 function StatTile({ label, value }) {
   return (
-    <div className="rounded-xl border border-neutral-300 bg-white p-4">
+    <div className="rounded-xl border border-line bg-card p-4">
       <p className="text-xs text-neutral-500">{label}</p>
       <p className="mt-1 text-2xl font-semibold text-ink">{value}</p>
     </div>
@@ -29,7 +29,7 @@ export default function LiveStats({ participants }) {
         <StatTile label="Pegang HP" value={withPhone} />
       </div>
 
-      <div className="rounded-xl border border-neutral-300 bg-white p-4">
+      <div className="rounded-xl border border-line bg-card p-4">
         <p className="mb-2 text-xs text-neutral-500">Durasi OnCam per Peserta (menit)</p>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData}>

@@ -21,7 +21,7 @@ export default function ParticipantCard({ participant }) {
   const flags = p.flags || [];
 
   return (
-    <div className="rounded-xl border border-neutral-300 bg-white p-4">
+    <div className="rounded-xl border border-line bg-card p-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-ink">{p.name}</h3>
