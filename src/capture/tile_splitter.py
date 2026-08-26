@@ -42,10 +42,10 @@ class TileSplitter:
         if len(boxes) > self.max_tiles:
             logger.warning(
                 "Auto grid detected %d tiles, exceeds max_tiles=%d (layar yang di-capture "
-                "kemungkinan bukan gallery view meeting) - fallback ke grid 2x2",
+                "kemungkinan bukan gallery view meeting) - fallback ke 1 tile penuh",
                 len(boxes), self.max_tiles,
             )
-            boxes = self._fixed_grid(frame, "2x2")
+            boxes = self._fixed_grid(frame, "1x1")
 
         tiles = []
         for i, (x, y, w, h) in enumerate(boxes):
@@ -72,7 +72,9 @@ class TileSplitter:
     def _auto_detect_grid(self, frame: np.ndarray) -> list[tuple[int, int, int, int]]:
         """Detect near-uniform-color gutters (typically black/dark gray in
         Zoom/Meet/Teams gallery views) to infer the tile grid, then falls
-        back to a heuristic square grid based on estimated participant count.
+        back to treating the whole frame as a single tile if no gutters are
+        found (e.g. only one participant, so there's nothing to gutter
+        against).
         """
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         h, w = gray.shape
@@ -97,9 +99,12 @@ class TileSplitter:
             logger.debug("Auto grid detected: %d rows x %d cols", len(row_bounds) - 1, len(col_bounds) - 1)
             return boxes
 
-        # Fallback: assume a square-ish grid sized to fill the frame evenly
-        logger.debug("Auto grid detection failed, falling back to 2x2")
-        return self._fixed_grid(frame, "2x2")
+        # No gutters found - most likely a single participant (nothing
+        # adjacent to create a gutter against), so treat the whole frame as
+        # one tile rather than fabricating a fixed grid that would slice one
+        # real face into several fake "participants".
+        logger.debug("Auto grid detection found no gutters, treating frame as a single tile")
+        return self._fixed_grid(frame, "1x1")
 
     @staticmethod
     def _find_splits(profile: np.ndarray, dark_thresh: float = 40.0, min_gap: int = 12) -> list[int]:
