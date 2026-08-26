@@ -458,7 +458,9 @@
   const navLinks = el("nav-links");
   navLinks.innerHTML = cfg.nav.links.map(l => `<a href="${escapeHtml(l.href)}">${escapeHtml(l.label)}</a>`).join("");
 
-  el("login-link").textContent = cfg.nav.loginLabel;
+  const loginLink = el("login-link");
+  loginLink.textContent = cfg.nav.loginLabel;
+  loginLink.href = cfg.nav.loginHref || "/app";
   const ctaLink = el("cta-link");
   ctaLink.textContent = cfg.nav.ctaLabel;
   ctaLink.href = cfg.nav.ctaHref;

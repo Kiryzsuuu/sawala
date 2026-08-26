@@ -80,22 +80,21 @@ def _dashboard_dist_dir() -> Path | None:
     return candidate if candidate.is_dir() else None
 
 
-_landing_dir = PROJECT_ROOT / "landing"
-if _landing_dir.is_dir():
-    # Mounted before the dashboard catch-all so /landing keeps working
-    # regardless of dashboard build state.
-    app.mount("/landing", StaticFiles(directory=_landing_dir, html=True), name="landing")
-    logger.info("Serving marketing landing page from %s", _landing_dir)
-
 _dist_dir = _dashboard_dist_dir()
 if _dist_dir:
-    # Mounted last so it never shadows /api/* or /ws/live above; serves the
-    # built dashboard directly, so packaged builds only need this one
-    # server running (no separate `npm run dev`).
-    app.mount("/", StaticFiles(directory=_dist_dir, html=True), name="dashboard")
-    logger.info("Serving built dashboard from %s", _dist_dir)
+    # Mounted at /app (built with vite base "/app/") so the marketing
+    # landing page can own the root path below.
+    app.mount("/app", StaticFiles(directory=_dist_dir, html=True), name="dashboard")
+    logger.info("Serving built dashboard from %s at /app", _dist_dir)
 else:
     logger.info("No built dashboard found - run `npm run build` in dashboard/ to serve it from here")
+
+_landing_dir = PROJECT_ROOT / "landing"
+if _landing_dir.is_dir():
+    # Mounted last, at the root, so it never shadows /api/*, /ws/live or
+    # /app above; this is now the public marketing site.
+    app.mount("/", StaticFiles(directory=_landing_dir, html=True), name="landing")
+    logger.info("Serving marketing landing page from %s at /", _landing_dir)
 
 
 if __name__ == "__main__":
