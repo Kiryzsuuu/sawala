@@ -80,6 +80,13 @@ def _dashboard_dist_dir() -> Path | None:
     return candidate if candidate.is_dir() else None
 
 
+_landing_dir = PROJECT_ROOT / "landing"
+if _landing_dir.is_dir():
+    # Mounted before the dashboard catch-all so /landing keeps working
+    # regardless of dashboard build state.
+    app.mount("/landing", StaticFiles(directory=_landing_dir, html=True), name="landing")
+    logger.info("Serving marketing landing page from %s", _landing_dir)
+
 _dist_dir = _dashboard_dist_dir()
 if _dist_dir:
     # Mounted last so it never shadows /api/* or /ws/live above; serves the
