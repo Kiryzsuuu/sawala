@@ -9,6 +9,7 @@ import SessionSummary from "./components/SessionSummary";
 import ParticipantLinkPanel from "./components/ParticipantLinkPanel";
 import ParticipantSelfView from "./components/ParticipantSelfView";
 import BrowserScreenCapture from "./components/BrowserScreenCapture";
+import LivePreview from "./components/LivePreview";
 import Login from "./components/Login";
 import ResetPassword from "./components/ResetPassword";
 import AdminPanel from "./components/AdminPanel";
@@ -112,6 +113,8 @@ function HostDashboard({ user, onLogout }) {
         <ParticipantLinkPanel />
 
         <BrowserScreenCapture />
+
+        <LivePreview />
 
         <LiveStats participants={participants} />
 

@@ -102,12 +102,24 @@ def register_routes(app, engine, monitor_loop, get_current_user):
         """Screenshot terakhir yang di-capture, lengkap dengan kotak tile
         yang terdeteksi (hijau = sudah terkonfirmasi jadi peserta, abu-abu
         = belum). Bisa dipanggil kapan saja, termasuk sebelum sesi dimulai,
-        untuk kalibrasi region capture / grid."""
+        untuk kalibrasi region capture / grid. Hanya untuk local screen
+        capture (mss) - lihat /api/preview/last untuk sumber browser."""
         try:
             jpeg = engine.capture_preview()
         except Exception as exc:
             raise HTTPException(500, f"Gagal mengambil preview: {exc}")
         return Response(content=jpeg, media_type="image/jpeg")
+
+    @app.get("/api/preview/last")
+    def get_last_preview(_: dict = Depends(get_current_user)):
+        """Frame terakhir yang benar-benar diproses lewat pipeline, dengan
+        kotak tile yang sama seperti /api/preview - tapi tanpa mengambil
+        capture baru, jadi ini satu-satunya cara melihat preview kalau
+        sumber framenya browser (/api/ingest/screen), bukan mss lokal.
+        404 kalau belum ada frame yang diproses sama sekali."""
+        if engine.last_preview_jpeg is None:
+            raise HTTPException(404, "Belum ada frame yang diproses. Mulai sesi dan aktifkan screen capture dulu.")
+        return Response(content=engine.last_preview_jpeg, media_type="image/jpeg")
 
     @app.get("/api/session", response_model=SessionInfo)
     def get_session(_: dict = Depends(get_current_user)):
