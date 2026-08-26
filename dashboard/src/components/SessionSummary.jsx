@@ -17,17 +17,17 @@ export default function SessionSummary({ participants }) {
   return (
     <div className="rounded-xl border border-line bg-card p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-ink">Ringkasan Sesi</h2>
+        <h2 className="text-sm font-semibold text-ink-soft">Ringkasan Sesi</h2>
         <div className="flex gap-2">
           <button
             onClick={() => downloadExport("/api/export/csv", "sawala-session.csv")}
-            className="inline-flex items-center gap-1 rounded-lg border border-ink px-3 py-1.5 text-xs text-ink hover:bg-ink hover:text-paper"
+            className="inline-flex items-center gap-1 rounded-lg bg-paper-alt px-3 py-1.5 text-xs text-ink-soft transition hover:bg-line"
           >
             <Download size={14} /> CSV
           </button>
           <button
             onClick={() => downloadExport("/api/export/json", "sawala-session.json")}
-            className="inline-flex items-center gap-1 rounded-lg border border-ink px-3 py-1.5 text-xs text-ink hover:bg-ink hover:text-paper"
+            className="inline-flex items-center gap-1 rounded-lg bg-paper-alt px-3 py-1.5 text-xs text-ink-soft transition hover:bg-line"
           >
             <Download size={14} /> JSON
           </button>
@@ -46,7 +46,7 @@ export default function SessionSummary({ participants }) {
           <tbody>
             {participants.map((p) => (
               <tr key={p.id} className="border-b border-neutral-200">
-                <td className="py-2 pr-4 text-ink">{p.name}</td>
+                <td className="py-2 pr-4 text-ink-soft">{p.name}</td>
                 <td className="py-2 pr-4">{p.oncam ? "OnCam" : "OffCam"}</td>
                 <td className="py-2 pr-4">{(p.flags || []).join(", ") || "-"}</td>
               </tr>

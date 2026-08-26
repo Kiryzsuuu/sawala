@@ -4,7 +4,7 @@ function StatTile({ label, value }) {
   return (
     <div className="rounded-xl border border-line bg-card p-4">
       <p className="text-xs text-neutral-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-ink">{value}</p>
+      <p className="mt-1 text-2xl font-semibold text-ink-soft">{value}</p>
     </div>
   );
 }
@@ -36,8 +36,8 @@ export default function LiveStats({ participants }) {
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e0d5" />
             <XAxis dataKey="name" stroke="#8a8577" fontSize={12} />
             <YAxis stroke="#8a8577" fontSize={12} />
-            <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #d4cfc0", color: "#1a1a1a" }} />
-            <Bar dataKey="oncam_pct" fill="#1a1a1a" radius={[4, 4, 0, 0]} />
+            <Tooltip contentStyle={{ background: "#fbfaf7", border: "1px solid #d4cfc0", color: "#3f3d38" }} />
+            <Bar dataKey="oncam_pct" fill="#3f3d38" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

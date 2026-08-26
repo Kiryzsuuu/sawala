@@ -2,7 +2,7 @@ import { Camera, CameraOff, Smartphone, Smile, Ghost, Moon } from "lucide-react"
 
 function Badge({ icon: Icon, label }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-ink px-2 py-0.5 text-xs font-medium text-ink">
+    <span className="inline-flex items-center gap-1 rounded-full bg-paper-alt px-2 py-0.5 text-xs font-medium text-ink-soft">
       <Icon size={12} />
       {label}
     </span>
@@ -24,7 +24,7 @@ export default function ParticipantCard({ participant }) {
     <div className="rounded-xl border border-line bg-card p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-ink">{p.name}</h3>
+          <h3 className="text-sm font-semibold text-ink-soft">{p.name}</h3>
           <p className="text-xs text-neutral-500">{p.id}</p>
         </div>
         {p.oncam ? (
@@ -44,19 +44,19 @@ export default function ParticipantCard({ participant }) {
       <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-neutral-500">
         <div>
           <span className="block text-neutral-400">Durasi OnCam</span>
-          <span className="text-ink">{formatDuration(p.oncam_duration_seconds)}</span>
+          <span className="text-ink-soft">{formatDuration(p.oncam_duration_seconds)}</span>
         </div>
         <div>
           <span className="block text-neutral-400">Emosi</span>
-          <span className="text-ink capitalize">{p.dominant_emotion || "-"}</span>
+          <span className="text-ink-soft capitalize">{p.dominant_emotion || "-"}</span>
         </div>
         <div>
           <span className="block text-neutral-400">EAR</span>
-          <span className="text-ink">{p.ear_value ?? "-"}</span>
+          <span className="text-ink-soft">{p.ear_value ?? "-"}</span>
         </div>
         <div>
           <span className="block text-neutral-400">Liveness</span>
-          <span className="text-ink">{p.liveness_score ?? "-"}</span>
+          <span className="text-ink-soft">{p.liveness_score ?? "-"}</span>
         </div>
       </div>
     </div>

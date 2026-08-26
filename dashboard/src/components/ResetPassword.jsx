@@ -33,7 +33,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-paper px-4 py-10 font-sans text-ink">
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4 py-10 font-sans text-ink-soft">
       <div className="w-full max-w-sm rounded-2xl border border-line bg-card p-8 shadow-sm">
         <div className="mb-7 flex flex-col items-center text-center">
           <img
@@ -57,7 +57,7 @@ export default function ResetPassword() {
             </p>
             <a
               href="/app/"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink-soft"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-ink-soft px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink"
             >
               Ke Halaman Login
             </a>
@@ -72,14 +72,14 @@ export default function ResetPassword() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none transition focus:border-ink"
+                className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink-soft outline-none transition focus:border-ink-soft"
               />
             </div>
             {status && <p className="text-xs text-ink-soft">{status}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink-soft disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-ink-soft px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink disabled:opacity-50"
             >
               <KeyRound size={16} />
               {loading ? "Memproses..." : "Ganti Password"}

@@ -45,7 +45,7 @@ export default function ParticipantSelfView() {
   const me = participants.find((p) => p.id === selectedId);
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-paper px-5 py-8 font-sans text-ink">
+    <div className="mx-auto min-h-screen max-w-md bg-paper px-5 py-8 font-sans text-ink-soft">
       <div className="mb-6 text-center">
         <h1 className="text-lg font-bold">Status Monitor Saya</h1>
         <p className="mt-1 text-xs text-neutral-500">
@@ -58,7 +58,7 @@ export default function ParticipantSelfView() {
         <select
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
-          className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink"
+          className="w-full rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink-soft"
         >
           <option value="">Pilih nama saya</option>
           {participants.map((p) => (

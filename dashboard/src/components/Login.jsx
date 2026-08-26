@@ -56,7 +56,7 @@ export default function Login({ onLoggedIn }) {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-paper px-4 py-10 font-sans text-ink">
+    <div className="flex min-h-screen items-center justify-center bg-paper px-4 py-10 font-sans text-ink-soft">
       <div className="w-full max-w-sm rounded-2xl border border-line bg-card p-8 shadow-sm">
         <div className="mb-7 flex flex-col items-center text-center">
           <img
@@ -78,7 +78,7 @@ export default function Login({ onLoggedIn }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none transition focus:border-ink"
+              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink-soft outline-none transition focus:border-ink-soft"
             />
           </div>
 
@@ -103,7 +103,7 @@ export default function Login({ onLoggedIn }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none transition focus:border-ink"
+                className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink-soft outline-none transition focus:border-ink-soft"
               />
             </div>
           )}
@@ -114,7 +114,7 @@ export default function Login({ onLoggedIn }) {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink-soft disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-ink-soft px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink disabled:opacity-50"
           >
             {forgotMode ? <Mail size={16} /> : <LogIn size={16} />}
             {loading ? "Memproses..." : forgotMode ? "Kirim Link Reset" : "Masuk"}

@@ -92,7 +92,7 @@ export default function BrowserScreenCapture() {
     <div className="rounded-xl border border-line bg-card p-4">
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink-soft">
             {active ? <MonitorUp size={16} /> : <MonitorX size={16} />}
             Screen Capture via Browser
           </div>
@@ -103,7 +103,7 @@ export default function BrowserScreenCapture() {
         </div>
         <button
           onClick={active ? stop : start}
-          className="w-full flex-shrink-0 rounded-lg border border-ink px-4 py-2 text-sm font-medium text-ink hover:bg-ink hover:text-paper sm:w-auto"
+          className="w-full flex-shrink-0 rounded-lg bg-ink-soft px-4 py-2 text-sm font-medium text-paper transition hover:bg-ink sm:w-auto"
         >
           {active ? "Hentikan" : "Aktifkan Screen Capture"}
         </button>

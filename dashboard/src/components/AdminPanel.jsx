@@ -39,7 +39,7 @@ function UserFormModal({ initial, onClose, onSaved }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4">
       <div className="w-full max-w-sm rounded-2xl border border-line bg-card p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink-soft">
             <UserPlus size={16} />
             {isEdit ? "Edit User" : "Tambah User Baru"}
           </div>
@@ -55,7 +55,7 @@ function UserFormModal({ initial, onClose, onSaved }) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none transition focus:border-ink"
+              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink-soft outline-none transition focus:border-ink-soft"
             />
           </div>
           <div>
@@ -68,7 +68,7 @@ function UserFormModal({ initial, onClose, onSaved }) {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none transition focus:border-ink"
+              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink-soft outline-none transition focus:border-ink-soft"
             />
           </div>
           <div>
@@ -76,7 +76,7 @@ function UserFormModal({ initial, onClose, onSaved }) {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink outline-none transition focus:border-ink"
+              className="w-full rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-ink-soft outline-none transition focus:border-ink-soft"
             >
               <option value="admin">Admin</option>
               <option value="super_admin">Super Admin</option>
@@ -86,7 +86,7 @@ function UserFormModal({ initial, onClose, onSaved }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink-soft disabled:opacity-50"
+            className="w-full rounded-lg bg-ink-soft px-4 py-2.5 text-sm font-medium text-paper transition hover:bg-ink disabled:opacity-50"
           >
             {loading ? "Menyimpan..." : "Simpan"}
           </button>
@@ -123,14 +123,14 @@ export default function AdminPanel({ currentUserId, onClose }) {
     <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-ink/40 p-3 sm:p-6">
       <div className="w-full max-w-2xl rounded-2xl border border-line bg-card p-5 shadow-sm sm:p-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink-soft">
             <Users size={16} />
             Kelola User
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setModalUser(null)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-xs font-medium text-paper transition hover:bg-ink-soft"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-ink-soft px-3 py-2 text-xs font-medium text-paper transition hover:bg-ink"
             >
               <Plus size={14} /> Tambah User
             </button>
@@ -156,7 +156,7 @@ export default function AdminPanel({ currentUserId, onClose }) {
               <tbody>
                 {users.map((u) => (
                   <tr key={u.id} className="border-b border-line last:border-0">
-                    <td className="py-2.5 pl-4 pr-4 text-ink">{u.email}</td>
+                    <td className="py-2.5 pl-4 pr-4 text-ink-soft">{u.email}</td>
                     <td className="py-2.5 pr-4 capitalize text-ink-soft">{u.role.replace("_", " ")}</td>
                     <td className="py-2.5 pr-4 text-muted">
                       {u.created_at ? new Date(u.created_at).toLocaleDateString() : "-"}

@@ -58,7 +58,7 @@ function HostDashboard({ user, onLogout }) {
           {notifPermission !== "unsupported" && notifPermission !== "granted" && (
             <button
               onClick={requestNotifPermission}
-              className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-600 hover:bg-neutral-100"
+              className="inline-flex items-center gap-1 rounded-lg bg-paper-alt px-3 py-2 text-xs text-ink-soft transition hover:bg-line"
               title="Dapat notifikasi desktop saat ada kejadian baru walau sedang di tab lain"
             >
               <BellOff size={14} />
@@ -73,7 +73,7 @@ function HostDashboard({ user, onLogout }) {
           {user?.role === "super_admin" && (
             <button
               onClick={() => setShowAdmin(true)}
-              className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-600 hover:bg-neutral-100"
+              className="inline-flex items-center gap-1 rounded-lg bg-paper-alt px-3 py-2 text-xs text-ink-soft transition hover:bg-line"
             >
               <ShieldCheck size={14} />
               <span className="hidden sm:inline">Kelola User</span>
@@ -82,14 +82,14 @@ function HostDashboard({ user, onLogout }) {
           <button
             onClick={toggleSession}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg border border-ink px-4 py-2 text-sm font-medium text-ink hover:bg-ink hover:text-paper disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-ink-soft px-4 py-2 text-sm font-medium text-paper transition hover:bg-ink disabled:opacity-50"
           >
             {sessionActive ? <Square size={16} /> : <Play size={16} />}
             {sessionActive ? "Hentikan Sesi" : "Mulai Sesi"}
           </button>
           <button
             onClick={onLogout}
-            className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 px-3 py-2 text-xs text-neutral-600 hover:bg-neutral-100"
+            className="inline-flex items-center gap-1 rounded-lg bg-paper-alt px-3 py-2 text-xs text-ink-soft transition hover:bg-line"
             title={user?.email}
           >
             <LogOut size={14} />
