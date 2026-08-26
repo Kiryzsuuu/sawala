@@ -22,7 +22,7 @@ const SAWALA_DEFAULT_CONFIG = {
     ctaHref: "/app",
   },
   hero: {
-    badge: "🟢 Live sekarang di dashboard kamu",
+    badge: "Live sekarang di dashboard kamu",
     titleBefore: "Pantau meeting Zoom & Meet, ",
     titleHighlight: "secara real-time.",
     lead: "SAWALA menganalisis setiap tile peserta secara otomatis, OnCam/OffCam, penggunaan HP, tanda fatigue, sampai ekspresi, lalu menampilkannya langsung di dashboard live. Tanpa plugin, tanpa ribet.",
@@ -30,7 +30,7 @@ const SAWALA_DEFAULT_CONFIG = {
     primaryCtaHref: "/app",
     secondaryCtaLabel: "Lihat Cara Kerja",
     secondaryCtaHref: "#cara-kerja",
-    trustLine: "Berjalan lokal di laptop host • Tidak perlu install di sisi peserta",
+    trustLine: "Berjalan lokal di laptop host - Tidak perlu install di sisi peserta",
     image: "", // optional base64 image to replace the illustrated tile grid
   },
   logos: {
@@ -42,12 +42,12 @@ const SAWALA_DEFAULT_CONFIG = {
     title: "Semua yang kamu butuhkan untuk memantau engagement peserta",
     subtitle: "Satu dashboard, empat lapis deteksi otomatis berbasis computer vision.",
     items: [
-      { icon: "📷", title: "Deteksi OnCam / OffCam", desc: "Ketahui siapa yang benar-benar menyalakan kamera dan siapa yang memakai avatar/foto statis, secara real-time per tile." },
-      { icon: "📱", title: "Deteksi Penggunaan HP", desc: "Sistem menandai peserta yang terlihat memegang atau melihat ponsel selama sesi berlangsung." },
-      { icon: "😴", title: "Indikator Fatigue", desc: "Analisis kelopak mata dan pola gerak untuk memberi sinyal dini kelelahan peserta di meeting panjang." },
-      { icon: "🙂", title: "Ekspresi & Senyum", desc: "Rekap ekspresi peserta sepanjang sesi untuk membaca engagement tanpa perlu menonton ulang rekaman." },
-      { icon: "🖥️", title: "Screen Capture Lokal", desc: "Berjalan langsung dari layar host (mss) atau via browser (getDisplayMedia) tanpa install apa pun di sisi peserta." },
-      { icon: "📊", title: "Dashboard Live", desc: "Semua metrik tersaji real-time di web dashboard, siap dipantau dari perangkat lain di jaringan yang sama." },
+      { title: "Deteksi OnCam / OffCam", desc: "Ketahui siapa yang benar-benar menyalakan kamera dan siapa yang memakai avatar/foto statis, secara real-time per tile." },
+      { title: "Deteksi Penggunaan HP", desc: "Sistem menandai peserta yang terlihat memegang atau melihat ponsel selama sesi berlangsung." },
+      { title: "Indikator Fatigue", desc: "Analisis kelopak mata dan pola gerak untuk memberi sinyal dini kelelahan peserta di meeting panjang." },
+      { title: "Ekspresi & Senyum", desc: "Rekap ekspresi peserta sepanjang sesi untuk membaca engagement tanpa perlu menonton ulang rekaman." },
+      { title: "Screen Capture Lokal", desc: "Berjalan langsung dari layar host (mss) atau via browser (getDisplayMedia) tanpa install apa pun di sisi peserta." },
+      { title: "Dashboard Live", desc: "Semua metrik tersaji real-time di web dashboard, siap dipantau dari perangkat lain di jaringan yang sama." },
     ],
   },
   steps: {

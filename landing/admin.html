@@ -6,70 +6,70 @@
 <title>SAWALA - Site Settings</title>
 <style>
   :root{
-    --blue:#0B5CFF; --blue-dark:#0842BF; --ink:#0e1116;
-    --gray-700:#4a4f57; --gray-500:#6b7280; --gray-200:#e5e7eb; --gray-100:#f4f6f8;
+    --ink:#1a1a1a; --ink-soft:#3f3d38; --muted:#7a776e;
+    --line:#e3ded2; --paper:#f7f5f0; --paper-alt:#efebe1; --card:#fbfaf7;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--gray-100);color:var(--ink);
+    margin:0;font-family:"SF Pro Display","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper);color:var(--ink);
   }
   a{color:inherit;}
   .topbar{
-    position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--gray-200);
+    position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);
     padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
   }
-  .topbar .brand{font-weight:800;font-size:18px;color:var(--blue);display:flex;align-items:center;gap:8px;}
+  .topbar .brand{font-weight:700;font-size:18px;color:var(--ink);display:flex;align-items:center;gap:8px;}
   .topbar .actions{display:flex;gap:10px;flex-wrap:wrap;}
   .wrap{max-width:920px;margin:0 auto;padding:28px 16px 80px;}
   .btn{
     display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;
-    font-weight:700;font-size:13.5px;cursor:pointer;border:1px solid transparent;
+    font-weight:600;font-size:13.5px;cursor:pointer;border:1px solid transparent;
   }
-  .btn-primary{background:var(--blue);color:#fff;}
-  .btn-primary:hover{background:var(--blue-dark);}
-  .btn-outline{background:#fff;border-color:var(--gray-200);color:var(--ink);}
-  .btn-outline:hover{border-color:var(--blue);color:var(--blue);}
-  .btn-danger{background:#fff;border-color:#fecdca;color:#b42318;}
-  .btn-danger:hover{background:#fef3f2;}
-  .card{background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:22px;margin-bottom:20px;}
-  .card h2{font-size:16px;margin:0 0 4px;}
-  .card .hint{font-size:12.5px;color:var(--gray-500);margin-bottom:16px;}
-  label{display:block;font-size:12.5px;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
+  .btn-primary{background:var(--ink);color:var(--paper);}
+  .btn-primary:hover{background:var(--ink-soft);}
+  .btn-outline{background:var(--card);border-color:var(--line);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--ink);}
+  .btn-danger{background:var(--card);border-color:var(--line);color:var(--ink-soft);}
+  .btn-danger:hover{border-color:var(--ink);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:20px;}
+  .card h2{font-size:16px;margin:0 0 4px;font-weight:600;}
+  .card .hint{font-size:12.5px;color:var(--muted);margin-bottom:16px;}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
   input[type=text], textarea{
-    width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:8px;
-    font-size:14px;font-family:inherit;margin-bottom:14px;background:#fdfdfd;
+    width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;
+    font-size:14px;font-family:inherit;margin-bottom:14px;background:var(--paper);
   }
   textarea{resize:vertical;min-height:56px;}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   @media (max-width:640px){ .row{grid-template-columns:1fr;} }
-  .sub-item{border:1px dashed var(--gray-200);border-radius:10px;padding:14px;margin-bottom:12px;position:relative;background:var(--gray-100);}
+  .sub-item{border:1px dashed var(--line);border-radius:10px;padding:14px;margin-bottom:12px;position:relative;background:var(--paper);}
   .sub-item .remove-btn{
-    position:absolute;top:8px;right:8px;font-size:11px;color:#b42318;font-weight:700;
-    background:#fff;border:1px solid #fecdca;border-radius:6px;padding:3px 8px;cursor:pointer;
+    position:absolute;top:8px;right:8px;font-size:11px;color:var(--ink-soft);font-weight:600;
+    background:var(--card);border:1px solid var(--line);border-radius:6px;padding:3px 8px;cursor:pointer;
   }
-  .add-btn{font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;background:none;border:none;padding:6px 0;}
+  .add-btn{font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;background:none;border:none;padding:6px 0;text-decoration:underline;}
   .image-field{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
-  .image-field img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--gray-200);background:#fff;}
+  .image-field img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--card);}
   .image-field .placeholder{
-    width:64px;height:64px;border-radius:8px;border:1px dashed var(--gray-200);
-    display:flex;align-items:center;justify-content:center;color:var(--gray-500);font-size:11px;text-align:center;
+    width:64px;height:64px;border-radius:8px;border:1px dashed var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;
   }
   .toast{
     position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--ink);color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;
+    background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;
     opacity:0;transition:all .2s ease;pointer-events:none;z-index:100;
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   #login-screen{
     min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
   }
-  .login-box{background:#fff;border:1px solid var(--gray-200);border-radius:16px;padding:36px;max-width:360px;width:100%;text-align:center;}
-  .login-box h1{font-size:20px;margin-bottom:6px;}
-  .login-box p{font-size:13.5px;color:var(--gray-500);margin-bottom:20px;}
+  .login-box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:36px;max-width:360px;width:100%;text-align:center;}
+  .login-box h1{font-size:20px;margin-bottom:6px;font-weight:700;}
+  .login-box p{font-size:13.5px;color:var(--muted);margin-bottom:20px;}
   .login-box input{margin-bottom:12px;}
   .login-box .btn{width:100%;justify-content:center;}
-  .error-msg{color:#b42318;font-size:13px;margin-bottom:10px;display:none;}
+  .error-msg{color:var(--ink-soft);font-size:13px;margin-bottom:10px;display:none;}
   #app{display:none;}
 </style>
 </head>
@@ -77,7 +77,7 @@
 
 <div id="login-screen">
   <div class="login-box">
-    <h1>🔒 Site Settings</h1>
+    <h1>Site Settings</h1>
     <p>Masukkan password admin untuk mengelola konten landing page SAWALA.</p>
     <div class="error-msg" id="login-error">Password salah, coba lagi.</div>
     <input type="text" id="login-password" placeholder="Password admin" autocomplete="off">
@@ -88,14 +88,14 @@
 
 <div id="app">
   <div class="topbar">
-    <div class="brand">⚙ SAWALA Site Settings</div>
+    <div class="brand">SAWALA Site Settings</div>
     <div class="actions">
-      <a href="index.html" target="_blank" class="btn btn-outline">👁 Lihat Landing Page</a>
-      <button class="btn btn-outline" id="export-btn">⬇ Export JSON</button>
-      <button class="btn btn-outline" id="import-btn">⬆ Import JSON</button>
+      <a href="index.html" target="_blank" class="btn btn-outline">Lihat Landing Page</a>
+      <button class="btn btn-outline" id="export-btn">Export JSON</button>
+      <button class="btn btn-outline" id="import-btn">Import JSON</button>
       <input type="file" id="import-file" accept="application/json" style="display:none;">
-      <button class="btn btn-danger" id="reset-btn">↺ Reset Default</button>
-      <button class="btn btn-primary" id="save-btn">💾 Simpan Perubahan</button>
+      <button class="btn btn-danger" id="reset-btn">Reset Default</button>
+      <button class="btn btn-primary" id="save-btn">Simpan Perubahan</button>
     </div>
   </div>
 
@@ -241,7 +241,7 @@
     root.appendChild(section("Hero", "Bagian utama paling atas halaman.", (c) => {
       c.appendChild(textField("Badge kecil", () => cfg.hero.badge, (v) => cfg.hero.badge = v));
       c.appendChild(textField("Judul (bagian normal)", () => cfg.hero.titleBefore, (v) => cfg.hero.titleBefore = v));
-      c.appendChild(textField("Judul (bagian highlight biru)", () => cfg.hero.titleHighlight, (v) => cfg.hero.titleHighlight = v));
+      c.appendChild(textField("Judul (bagian penekanan)", () => cfg.hero.titleHighlight, (v) => cfg.hero.titleHighlight = v));
       c.appendChild(textField("Deskripsi", () => cfg.hero.lead, (v) => cfg.hero.lead = v, true));
       const row = document.createElement("div"); row.className = "row";
       row.appendChild(textField("Tombol Utama - Label", () => cfg.hero.primaryCtaLabel, (v) => cfg.hero.primaryCtaLabel = v));
@@ -267,12 +267,9 @@
       c.appendChild(textField("Judul", () => cfg.features.title, (v) => cfg.features.title = v));
       c.appendChild(textField("Subjudul", () => cfg.features.subtitle, (v) => cfg.features.subtitle = v));
       listEditor(c, cfg.features.items, "Fitur", (box, item) => {
-        const row = document.createElement("div"); row.className = "row";
-        row.appendChild(textField("Icon (emoji)", () => item.icon, (v) => item.icon = v));
-        row.appendChild(textField("Judul", () => item.title, (v) => item.title = v));
-        box.appendChild(row);
+        box.appendChild(textField("Judul", () => item.title, (v) => item.title = v));
         box.appendChild(textField("Deskripsi", () => item.desc, (v) => item.desc = v, true));
-      }, () => ({ icon: "✨", title: "Fitur Baru", desc: "Deskripsi fitur." }));
+      }, () => ({ title: "Fitur Baru", desc: "Deskripsi fitur." }));
     }));
 
     root.appendChild(section("Cara Kerja (Steps)", "Langkah-langkah penggunaan.", (c) => {
