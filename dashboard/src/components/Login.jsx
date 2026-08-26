@@ -59,7 +59,7 @@ export default function Login({ onLoggedIn }) {
     <div className="flex min-h-screen items-center justify-center bg-paper px-4 font-sans text-ink">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex items-center justify-center gap-3">
-          <img src="/logo.png" alt="Logo" className="h-10 w-10 object-cover" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" className="h-10 w-10 object-cover" />
           <h1 className="text-xl font-bold">SAWALA</h1>
         </div>
 

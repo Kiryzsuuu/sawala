@@ -37,7 +37,7 @@ function HostDashboard({ user, onLogout }) {
     <div className="min-h-screen bg-paper px-4 py-4 font-sans text-ink sm:px-6 sm:py-6">
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="Logo" className="h-10 w-10 flex-shrink-0 object-cover" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" className="h-10 w-10 flex-shrink-0 object-cover" />
           <div className="min-w-0">
             <h1 className="text-xl font-bold">SAWALA</h1>
             <p className="text-xs text-neutral-500">
@@ -130,7 +130,7 @@ function HostDashboard({ user, onLogout }) {
 export default function App() {
   const params = new URLSearchParams(window.location.search);
   const isParticipantView = params.get("view") === "saya";
-  const isResetPasswordView = window.location.pathname === "/reset-password";
+  const isResetPasswordView = window.location.pathname.endsWith("/reset-password");
 
   const [user, setUser] = useState(getStoredUser());
 
