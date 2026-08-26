@@ -8,6 +8,7 @@ from pathlib import Path
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.api.routes import register_routes
@@ -82,6 +83,13 @@ def _dashboard_dist_dir() -> Path | None:
 
 _dist_dir = _dashboard_dist_dir()
 if _dist_dir:
+    # StaticFiles mounted at "/app" only matches "/app/..." - it does not
+    # redirect the bare "/app" (no trailing slash) that links/browsers
+    # actually send, so that 404s without this explicit redirect.
+    @app.get("/app", include_in_schema=False)
+    def _dashboard_root_redirect():
+        return RedirectResponse(url="/app/")
+
     # Mounted at /app (built with vite base "/app/") so the marketing
     # landing page can own the root path below.
     app.mount("/app", StaticFiles(directory=_dist_dir, html=True), name="dashboard")

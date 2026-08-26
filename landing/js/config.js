@@ -17,9 +17,9 @@ const SAWALA_DEFAULT_CONFIG = {
       { label: "Harga", href: "#harga" },
     ],
     loginLabel: "Masuk",
-    loginHref: "/app",
+    loginHref: "/app/",
     ctaLabel: "Coba Gratis",
-    ctaHref: "/app",
+    ctaHref: "/app/",
   },
   hero: {
     badge: "Live sekarang di dashboard kamu",
@@ -27,7 +27,7 @@ const SAWALA_DEFAULT_CONFIG = {
     titleHighlight: "secara real-time.",
     lead: "SAWALA menganalisis setiap tile peserta secara otomatis, OnCam/OffCam, penggunaan HP, tanda fatigue, sampai ekspresi, lalu menampilkannya langsung di dashboard live. Tanpa plugin, tanpa ribet.",
     primaryCtaLabel: "Mulai Sesi Gratis",
-    primaryCtaHref: "/app",
+    primaryCtaHref: "/app/",
     secondaryCtaLabel: "Lihat Cara Kerja",
     secondaryCtaHref: "#cara-kerja",
     trustLine: "Berjalan lokal di laptop host - Tidak perlu install di sisi peserta",
@@ -71,7 +71,7 @@ const SAWALA_DEFAULT_CONFIG = {
       "Bisa jalan penuh offline di laptop host",
     ],
     ctaLabel: "Coba Sekarang",
-    ctaHref: "/app",
+    ctaHref: "/app/",
     image: "", // optional base64 image to replace the stat mockup
   },
   pricing: {
@@ -79,15 +79,15 @@ const SAWALA_DEFAULT_CONFIG = {
     title: "Gratis untuk mulai, siap dipakai kapan saja",
     subtitle: "SAWALA open-source dan bisa dijalankan sendiri (self-hosted), tanpa biaya lisensi.",
     plans: [
-      { name: "Self-Hosted", desc: "Install via start.bat atau installer Windows. Jalan lokal, data tidak keluar dari perangkatmu.", price: "Gratis", ctaLabel: "Download", ctaHref: "/app", dark: false },
-      { name: "Cloud (PM2 + Nginx)", desc: "Deploy di server sendiri untuk dipantau tim dari mana saja via browser.", price: "Hubungi Kami", ctaLabel: "Jadwalkan Demo", ctaHref: "/app", dark: true },
+      { name: "Self-Hosted", desc: "Install via start.bat atau installer Windows. Jalan lokal, data tidak keluar dari perangkatmu.", price: "Gratis", ctaLabel: "Download", ctaHref: "/app/", dark: false },
+      { name: "Cloud (PM2 + Nginx)", desc: "Deploy di server sendiri untuk dipantau tim dari mana saja via browser.", price: "Hubungi Kami", ctaLabel: "Jadwalkan Demo", ctaHref: "/app/", dark: true },
     ],
   },
   ctaBanner: {
     title: "Siap memantau meeting kamu?",
     subtitle: "Unduh SAWALA dan aktifkan sesi pertamamu dalam hitungan menit.",
     primaryLabel: "Masuk ke Dashboard",
-    primaryHref: "/app",
+    primaryHref: "/app/",
     secondaryLabel: "Baca Dokumentasi",
     secondaryHref: "#",
   },
