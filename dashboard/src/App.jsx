@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Play, Square, Wifi, WifiOff, Bell, BellOff, LogOut, ShieldCheck } from "lucide-react";
+import { Play, Square, Wifi, WifiOff, Bell, BellOff, LogOut, ShieldCheck, Globe } from "lucide-react";
 import { useWebSocket } from "./hooks/useWebSocket";
 import { useAwayAlerts } from "./hooks/useAwayAlerts";
 import { authFetch, clearSession, getStoredUser, getToken } from "./auth";
@@ -12,6 +12,7 @@ import BrowserScreenCapture from "./components/BrowserScreenCapture";
 import Login from "./components/Login";
 import ResetPassword from "./components/ResetPassword";
 import AdminPanel from "./components/AdminPanel";
+import SiteSettings from "./components/SiteSettings";
 
 function HostDashboard({ user, onLogout }) {
   const { participants, lastTimestamp, connected } = useWebSocket();
@@ -19,6 +20,7 @@ function HostDashboard({ user, onLogout }) {
   const [sessionActive, setSessionActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showSiteSettings, setShowSiteSettings] = useState(false);
 
   async function toggleSession() {
     setLoading(true);
@@ -79,6 +81,15 @@ function HostDashboard({ user, onLogout }) {
               <span className="hidden sm:inline">Kelola User</span>
             </button>
           )}
+          {user?.role === "super_admin" && (
+            <button
+              onClick={() => setShowSiteSettings(true)}
+              className="inline-flex items-center gap-1 rounded-lg bg-paper-alt px-3 py-2 text-xs text-ink-soft transition hover:bg-line"
+            >
+              <Globe size={14} />
+              <span className="hidden sm:inline">Site Settings</span>
+            </button>
+          )}
           <button
             onClick={toggleSession}
             disabled={loading}
@@ -123,6 +134,7 @@ function HostDashboard({ user, onLogout }) {
       </main>
 
       {showAdmin && <AdminPanel currentUserId={user?.id} onClose={() => setShowAdmin(false)} />}
+      {showSiteSettings && <SiteSettings onClose={() => setShowSiteSettings(false)} />}
     </div>
   );
 }
