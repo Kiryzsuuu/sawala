@@ -57,19 +57,22 @@ export default function LivePreview() {
       </p>
 
       <div className="mt-3 overflow-hidden rounded-lg border border-line bg-paper">
-        {status === "ok" && imageUrl && (
+        {imageUrl ? (
           <img src={imageUrl} alt="Preview capture terakhir" className="w-full" />
-        )}
-        {status === "loading" && (
-          <p className="p-6 text-center text-xs text-muted">Memuat preview...</p>
-        )}
-        {status === "empty" && (
-          <p className="p-6 text-center text-xs text-muted">
-            Belum ada frame yang diproses. Mulai sesi lalu aktifkan screen capture dulu.
-          </p>
-        )}
-        {status === "error" && (
-          <p className="p-6 text-center text-xs text-muted">Gagal memuat preview.</p>
+        ) : (
+          <>
+            {status === "loading" && (
+              <p className="p-6 text-center text-xs text-muted">Memuat preview...</p>
+            )}
+            {status === "empty" && (
+              <p className="p-6 text-center text-xs text-muted">
+                Belum ada frame yang diproses. Mulai sesi lalu aktifkan screen capture dulu.
+              </p>
+            )}
+            {status === "error" && (
+              <p className="p-6 text-center text-xs text-muted">Gagal memuat preview.</p>
+            )}
+          </>
         )}
       </div>
     </div>
