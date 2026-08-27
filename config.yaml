@@ -28,6 +28,17 @@ face_detection:
   min_tracking_confidence: 0.5   # Ambang keyakinan untuk melanjutkan tracking
                                   # wajah/tangan/landmark di frame berikutnya.
 
+ocr:
+  enabled: true                 # Auto-baca nama peserta dari label nama di tile via
+                                  # Tesseract OCR, supaya tidak tertulis "Participant N"
+                                  # terus. Butuh Tesseract-OCR binary terinstal di sistem
+                                  # (bukan cuma package pip-nya) - kalau tidak ada, fitur ini
+                                  # otomatis nonaktif dan fallback ke penamaan manual.
+  min_confidence: 60            # Rata-rata confidence Tesseract (0-100) minimal supaya
+                                  # hasil OCR dipakai sebagai nama peserta.
+  name_strip_ratio: 0.16         # Porsi tinggi tile (dihitung dari bawah) yang berisi
+                                  # label nama peserta di kebanyakan UI meeting.
+
 bot_ingest:
   token: "change-me"           # Shared secret yang wajib dikirim bot (mis. bot Zoom
                                 # Meeting SDK) di header X-Ingest-Token saat push frame

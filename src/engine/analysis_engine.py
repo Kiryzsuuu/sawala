@@ -15,7 +15,7 @@ import numpy as np
 
 from src.capture.screen_capture import ScreenCapture
 from src.capture.tile_splitter import TileSplitter
-from src.detection import oncam_detector, phone_detector, expression_detector
+from src.detection import oncam_detector, phone_detector, expression_detector, name_ocr
 from src.data.database import Database
 from src.data.models import ParticipantStatus
 from src.engine.frame_buffer import FrameBuffer, SlotKey
@@ -168,6 +168,12 @@ class AnalysisEngine:
         for tile in tiles:
             status = self._process_frame(tile.index, tile.image, now_iso)
             if status is not None:
+                if self.buffer.is_unresolved_name(tile.index):
+                    x, y, w, h = tile.bbox
+                    ocr_name = name_ocr.read_tile_name(frame[y : y + h, x : x + w])
+                    if ocr_name:
+                        self.buffer.set_ocr_name(tile.index, ocr_name)
+                        status.name = ocr_name
                 statuses.append(status)
                 if screen_offset is not None:
                     x, y, w, h = tile.bbox

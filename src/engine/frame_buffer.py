@@ -38,9 +38,34 @@ class FrameBuffer:
     def __init__(self):
         self._slots: dict[SlotKey, ParticipantSlot] = {}
         self._names: dict[SlotKey, str] = {}
+        self._manual_keys: set[SlotKey] = set()
 
     def set_name(self, key: SlotKey, name: str) -> None:
+        """Host-provided name (manual naming via the dashboard). Always
+        wins - once set, auto-naming (OCR) can no longer overwrite it."""
         self._names[key] = name
+        self._manual_keys.add(key)
+        if key in self._slots:
+            self._slots[key].name = name
+
+    def set_ocr_name(self, key: SlotKey, name: str) -> None:
+        """Auto-detected name from reading the tile's on-screen name label.
+        Ignored if the host already named this slot manually."""
+        if key in self._manual_keys or key not in self._slots:
+            return
+        self._names[key] = name
+        self._slots[key].name = name
+
+    def is_unresolved_name(self, key: SlotKey) -> bool:
+        """True if this slot still has its auto-generated placeholder name
+        (e.g. "Participant 3") and hasn't been manually or OCR-named yet -
+        i.e. it's still worth attempting OCR on."""
+        if key in self._manual_keys:
+            return False
+        slot = self._slots.get(key)
+        if slot is None or isinstance(key, str):
+            return False
+        return slot.name == f"Participant {key + 1}"
 
     def has_slot(self, key: SlotKey) -> bool:
         """True if this slot has already been registered as a tracked

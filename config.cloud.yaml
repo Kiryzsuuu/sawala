@@ -20,6 +20,11 @@ face_detection:
   min_detection_confidence: 0.5
   min_tracking_confidence: 0.5
 
+ocr:
+  enabled: true
+  min_confidence: 60
+  name_strip_ratio: 0.16
+
 bot_ingest:
   # "change-me" menonaktifkan pengecekan token - dashboard (tombol "Aktifkan
   # Screen Capture") belum mengirim token apa pun karena aplikasi ini TIDAK

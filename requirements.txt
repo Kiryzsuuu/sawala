@@ -8,6 +8,9 @@ uvicorn[standard]>=0.27.0
 pydantic>=2.6.0
 PyYAML>=6.0.1
 websockets>=12.0
+pytesseract>=0.3.10       # Auto-baca nama peserta dari label nama di tile (OCR). Butuh
+                           # Tesseract-OCR binary terinstal di sistem juga (bukan cuma
+                           # package pip ini) - https://github.com/tesseract-ocr/tesseract
 python-multipart>=0.0.9  # dibutuhkan FastAPI untuk menerima file upload (endpoint ingest bot)
 
 # Auth (login sistem)
