@@ -70,20 +70,21 @@ class AnalysisEngine:
 
     def _process_frame(self, key: SlotKey, image: np.ndarray, now_iso: str) -> ParticipantStatus | None:
         """Run the full detector pipeline for one participant's frame.
-        Returns None if this key isn't confirmed yet and no face was found
-        in this frame either (see face-confirmation note below)."""
+        Always registers/tracks the slot for this key (see face-confirmation
+        note below)."""
         oncam_result = oncam_detector.detect_oncam(image)
 
-        # Sebuah slot baru hanya dianggap peserta sungguhan setelah AI
-        # benar-benar mendeteksi wajah di dalamnya. Ini mencegah potongan
-        # UI acak (bukan gallery view meeting) tercatat sebagai "peserta
-        # hantu". Slot yang sudah pernah terkonfirmasi tetap dilacak walau
-        # kameranya kemudian dimatikan (offcam).
-        if not oncam_result["face_found"] and not self.buffer.has_slot(key):
-            return None
-
+        # Setiap tile yang berhasil dibelah oleh tile-splitter (artinya grid
+        # gallery view valid) langsung dianggap peserta sungguhan, terlepas
+        # dari wajahnya kedeteksi atau tidak di frame ini. Ini penting justru
+        # supaya peserta yang OFFCAM sejak awal sesi (kamera mati / avatar /
+        # foto profil) tetap tercatat dan dilaporkan sebagai OFFCAM, bukan
+        # hilang begitu saja dari monitoring.
         slot = self.buffer.get_slot(key)
         flags: list[str] = []
+
+        if oncam_result["face_found"]:
+            slot.face_confirmed = True
 
         slot.oncam_state.update(oncam_result["oncam"])
         oncam_duration = slot.oncam_state.current_duration()
@@ -175,7 +176,10 @@ class AnalysisEngine:
         for status in statuses:
             self.db.insert_snapshot(self.session_id, status)
 
-        confirmed_indices = {tile.index for tile in tiles if self.buffer.has_slot(tile.index)}
+        confirmed_indices = {
+            tile.index for tile in tiles
+            if (slot := self.buffer.peek_slot(tile.index)) is not None and slot.face_confirmed
+        }
         self.last_preview_jpeg = build_preview_jpeg(frame, tiles, confirmed_indices)
 
         return statuses

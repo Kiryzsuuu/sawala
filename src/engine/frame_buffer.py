@@ -29,6 +29,7 @@ class ParticipantSlot:
     liveness: LivenessTracker
     fatigue: FatigueTracker
     oncam_state: OnCamState
+    face_confirmed: bool = False
 
 
 class FrameBuffer:
@@ -42,8 +43,9 @@ class FrameBuffer:
         self._names[key] = name
 
     def has_slot(self, key: SlotKey) -> bool:
-        """True if this slot has already been confirmed as a real
-        participant (a face was detected on it at least once)."""
+        """True if this slot has already been registered as a tracked
+        participant (via get_slot), regardless of whether a face has ever
+        been detected on it - see ParticipantSlot.face_confirmed for that."""
         return key in self._slots
 
     def peek_slot(self, key: SlotKey) -> ParticipantSlot | None:
