@@ -167,11 +167,24 @@ def join_meeting(page: Page, join_url: str, display_name: str, passcode: str | N
 
     _wait_for_waiting_room(page)
 
-    # Dialog "Join Audio" / minta izin device muncul setelah masuk - kita
-    # skip audio sepenuhnya, bot ini cuma butuh video peserta lain.
+    # PENTING: bot ini cuma butuh baca video peserta lain, tidak pernah
+    # boleh join audio. Chromium diberi --use-fake-device-for-media-stream
+    # (supaya tidak butuh mic asli) yang nada beep-nya akan ikut terkirim ke
+    # semua peserta lain kalau sampai audio ke-join - jangan pernah klik
+    # "Join Audio by Computer", tutup dialognya saja.
     time.sleep(5)
-    _dismiss_if_present(page, "button:has-text('Join Audio by Computer')", timeout_ms=8000)
+    _dismiss_if_present(page, "button:has-text(\"Don't Join Audio\")", timeout_ms=5000)
     _dismiss_if_present(page, "[aria-label='Close']")
+
+    # Jaga-jaga kalau audio ternyata tetap ke-join (mis. dialognya keburu
+    # auto-dismiss dengan opsi computer audio default aktif) - mute paksa.
+    for selector in ["[aria-label*='mute my microphone' i]", "button[aria-label^='Mute' i]"]:
+        try:
+            page.locator(selector).first.click(timeout=3000)
+            logger.info("Mic dipastikan mute via %s", selector)
+            break
+        except PlaywrightTimeoutError:
+            continue
 
     _switch_to_gallery_view(page)
 
@@ -256,7 +269,12 @@ def run(args: argparse.Namespace) -> None:
             headless=True,
             args=["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"],
         )
-        context = browser.new_context(permissions=["camera", "microphone"], viewport={"width": 1600, "height": 900})
+        # Cuma "camera" - Zoom web client butuh izin ini untuk memuat UI
+        # gallery dengan benar walau bot tidak pernah mengirim video sendiri.
+        # "microphone" sengaja TIDAK diberi supaya tidak ada jalan bot
+        # ke-auto-join audio dan mengirim nada beep dari fake audio device
+        # Chromium ke semua peserta lain.
+        context = browser.new_context(permissions=["camera"], viewport={"width": 1600, "height": 900})
         page = context.new_page()
 
         join_meeting(page, args.join_url, args.display_name, args.passcode)
