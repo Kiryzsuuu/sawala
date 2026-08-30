@@ -68,7 +68,46 @@ def _dismiss_if_present(page: Page, selector: str, timeout_ms: int = 3000) -> No
         pass
 
 
+_MEETING_ID_URL_RE = re.compile(r"^(https?://[^/]+)/j/(\d+)(\?.*)?$")
+
+
+def _normalize_join_url(join_url: str) -> str:
+    """A plain meeting invite link (`.../j/<id>?pwd=...`) opens Zoom's
+    "Launching..." app-redirect page, not the web client join form - the
+    web client form only loads directly at `.../wc/join/<id>?pwd=...`.
+    Rewrite proactively so the bot doesn't depend on clicking through the
+    launch page (see _click_join_from_browser for the fallback when a URL
+    doesn't match this shape, e.g. personal meeting room links)."""
+    match = _MEETING_ID_URL_RE.match(join_url)
+    if not match:
+        return join_url
+    host, meeting_id, query = match.groups()
+    normalized = f"{host}/wc/join/{meeting_id}{query or ''}"
+    logger.info("URL diubah ke join langsung web client: %s", normalized)
+    return normalized
+
+
+def _click_join_from_browser(page: Page) -> bool:
+    """Fallback for join URLs _normalize_join_url() couldn't rewrite: the
+    "Launching..." page has a small "Join from Your Browser" link, usually
+    revealed after clicking a "click here" prompt first."""
+    _dismiss_if_present(page, "a:has-text('click here')", timeout_ms=5000)
+    for selector in [
+        "a:has-text('Join from Your Browser')",
+        "a#joinBtn",
+        "a.joinBtn",
+    ]:
+        try:
+            page.locator(selector).first.click(timeout=5000)
+            logger.info("Klik '%s' untuk masuk ke web client", selector)
+            return True
+        except PlaywrightTimeoutError:
+            continue
+    return False
+
+
 def join_meeting(page: Page, join_url: str, display_name: str, passcode: str | None) -> None:
+    join_url = _normalize_join_url(join_url)
     logger.info("Membuka %s", join_url)
     page.goto(join_url, wait_until="domcontentloaded")
 
@@ -76,7 +115,16 @@ def join_meeting(page: Page, join_url: str, display_name: str, passcode: str | N
     _dismiss_if_present(page, "button:has-text('Accept Cookies')")
 
     name_input = page.locator("input#input-for-name, input[placeholder*='Your Name' i]").first
-    name_input.wait_for(timeout=20000)
+    try:
+        name_input.wait_for(timeout=8000)
+    except PlaywrightTimeoutError:
+        logger.info("Form nama belum kelihatan, coba cari link 'Join from Your Browser'...")
+        if not _click_join_from_browser(page):
+            raise RuntimeError(
+                "Tidak menemukan form join web client maupun link 'Join from Your Browser'. "
+                "Cek manual: buka join_url ini di browser biasa, lihat halaman apa yang muncul."
+            )
+        name_input.wait_for(timeout=20000)
     name_input.fill(display_name)
 
     if passcode:
