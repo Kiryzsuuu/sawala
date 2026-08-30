@@ -11,6 +11,7 @@ import numpy as np
 from fastapi import APIRouter, Depends, File, Header, HTTPException, Request, Response, UploadFile
 from pydantic import BaseModel
 
+from src.api.bot_manager import bot_manager
 from src.api.websocket import manager
 from src.auth.security import decode_access_token
 from src.data.exporter import export_csv, export_json
@@ -60,6 +61,12 @@ router = APIRouter()
 class ParticipantNameUpdate(BaseModel):
     tile_index: int
     name: str
+
+
+class BotStartRequest(BaseModel):
+    join_url: str
+    display_name: str = "SAWALA"
+    passcode: str | None = None
 
 
 def get_state(request_app):
@@ -155,6 +162,30 @@ def register_routes(app, engine, monitor_loop, get_current_user):
     def set_participant_name(update: ParticipantNameUpdate, _: dict = Depends(get_current_user)):
         engine.set_participant_name(update.tile_index, update.name)
         return {"status": "ok"}
+
+    @app.post("/api/bot/start")
+    def start_bot(update: BotStartRequest, _: dict = Depends(get_current_user)):
+        if not engine.session_id:
+            raise HTTPException(409, "Mulai sesi monitoring dulu sebelum menjalankan bot")
+        # Bot jalan sebagai subprocess di mesin yang sama dengan backend ini,
+        # jadi panggil lewat loopback langsung - lebih andal daripada lewat
+        # domain publik/reverse proxy (yang belum tentu dikonfigurasi benar
+        # untuk trafik dari proses lokal).
+        api_base = f"http://127.0.0.1:{CONFIG.api.port}"
+        try:
+            bot_manager.start(update.join_url, update.display_name, update.passcode, api_base)
+        except RuntimeError as exc:
+            raise HTTPException(409, str(exc))
+        return {"status": "started"}
+
+    @app.post("/api/bot/stop")
+    def stop_bot(_: dict = Depends(get_current_user)):
+        bot_manager.stop()
+        return {"status": "stopped"}
+
+    @app.get("/api/bot/status")
+    def bot_status(_: dict = Depends(get_current_user)):
+        return bot_manager.status()
 
     @app.post("/api/ingest/frame")
     async def ingest_frame(

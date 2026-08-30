@@ -198,7 +198,7 @@ def run(args: argparse.Namespace) -> None:
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--join-url", required=True, help="Link 'Join from Browser' Zoom Web Client")
-    parser.add_argument("--display-name", default="SAWALA Monitor")
+    parser.add_argument("--display-name", default="SAWALA")
     parser.add_argument("--passcode", default=None)
     parser.add_argument("--api-base", required=True, help="Base URL backend SAWALA, mis. https://sawala.inspiratekno.com")
     parser.add_argument("--ingest-token", required=True, help="Sama dengan bot_ingest.token di config.yaml (jangan 'change-me')")

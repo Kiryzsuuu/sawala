@@ -9,6 +9,7 @@ import SessionSummary from "./components/SessionSummary";
 import ParticipantLinkPanel from "./components/ParticipantLinkPanel";
 import ParticipantSelfView from "./components/ParticipantSelfView";
 import BrowserScreenCapture from "./components/BrowserScreenCapture";
+import ZoomBotControl from "./components/ZoomBotControl";
 import LivePreview from "./components/LivePreview";
 import Login from "./components/Login";
 import ResetPassword from "./components/ResetPassword";
@@ -111,6 +112,8 @@ function HostDashboard({ user, onLogout }) {
 
       <main className="space-y-6">
         <ParticipantLinkPanel />
+
+        <ZoomBotControl />
 
         <BrowserScreenCapture />
 
