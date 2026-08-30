@@ -19,7 +19,7 @@ from src.detection import oncam_detector, phone_detector, expression_detector, n
 from src.data.database import Database
 from src.data.models import ParticipantStatus
 from src.engine.frame_buffer import FrameBuffer, SlotKey
-from src.engine.preview import build_preview_jpeg
+from src.engine.preview import build_named_preview_jpeg, build_preview_jpeg
 from src.utils.config import CONFIG
 from src.utils.logger import get_logger
 
@@ -49,6 +49,10 @@ class AnalysisEngine:
         # dengan layar Windows sungguhan, dipakai overlay AR. Frame dari
         # browser (getDisplayMedia) tidak punya info posisi layar asli.
         self.last_tile_screen_positions: dict[SlotKey, tuple[int, int, int, int]] = {}
+        # Frame terakhir tiap peserta dari process_named_frame (bot), dipakai
+        # membangun preview mosaic karena jalur ini tidak punya satu frame
+        # gallery penuh untuk dianotasi seperti build_preview_jpeg().
+        self._named_frames: dict[str, tuple[np.ndarray, bool]] = {}
 
     def _get_capture(self) -> ScreenCapture:
         if self._capture is None:
@@ -57,6 +61,7 @@ class AnalysisEngine:
 
     def start_session(self) -> str:
         self.buffer.reset()
+        self._named_frames = {}
         self.session_id = self.db.start_session()
         return self.session_id
 
@@ -247,6 +252,11 @@ class AnalysisEngine:
         status = self._process_frame(participant_name, image, now_iso)
         if status is not None:
             self.db.insert_snapshot(self.session_id, status)
+            self._named_frames[participant_name] = (image, status.oncam)
+            try:
+                self.last_preview_jpeg = build_named_preview_jpeg(self._named_frames)
+            except ValueError:
+                pass
         return status
 
     def snapshot_all(self) -> list[ParticipantStatus]:
