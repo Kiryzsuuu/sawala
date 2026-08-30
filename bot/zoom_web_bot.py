@@ -106,6 +106,35 @@ def _click_join_from_browser(page: Page) -> bool:
     return False
 
 
+_WAITING_ROOM_TEXT = "Host has joined. We've let them know you're here."
+
+
+def _wait_for_waiting_room(page: Page, timeout_seconds: float = 300.0) -> None:
+    """If the meeting has Waiting Room enabled, Zoom shows this exact
+    message instead of dropping the bot into the gallery. Poll until the
+    host admits it (or bail with a clear error after `timeout_seconds`),
+    instead of barreling ahead and confusingly reporting 'no participant
+    tiles found' when the bot was never actually let into the meeting."""
+    if page.locator(f"text={_WAITING_ROOM_TEXT}").count() == 0:
+        return
+
+    logger.info(
+        "Meeting ini pakai Waiting Room - bot 'SAWALA' menunggu di-admit oleh host. "
+        "Buka Zoom, panel Participants, admit 'SAWALA' dari waiting room."
+    )
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        if page.locator(f"text={_WAITING_ROOM_TEXT}").count() == 0:
+            logger.info("Sudah di-admit, lanjut masuk meeting")
+            return
+        time.sleep(3)
+
+    raise RuntimeError(
+        f"Tidak di-admit dari waiting room dalam {timeout_seconds:.0f} detik. "
+        "Admit 'SAWALA' dari panel Participants, atau matikan Waiting Room di pengaturan meeting."
+    )
+
+
 def join_meeting(page: Page, join_url: str, display_name: str, passcode: str | None) -> None:
     join_url = _normalize_join_url(join_url)
     logger.info("Membuka %s", join_url)
@@ -135,6 +164,8 @@ def join_meeting(page: Page, join_url: str, display_name: str, passcode: str | N
     join_button = page.locator("button:has-text('Join')").first
     join_button.click(timeout=10000)
     logger.info("Klik join, menunggu masuk ke meeting...")
+
+    _wait_for_waiting_room(page)
 
     # Dialog "Join Audio" / minta izin device muncul setelah masuk - kita
     # skip audio sepenuhnya, bot ini cuma butuh video peserta lain.
