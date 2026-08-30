@@ -46,17 +46,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger("zoom_web_bot")
 
-# Kandidat selector untuk elemen per-tile peserta di gallery view. Dicoba
-# berurutan karena Zoom sering ganti nama class antar rilis web client.
+# Kandidat selector untuk elemen per-tile peserta. Dicoba berurutan karena
+# Zoom sering ganti nama class antar rilis web client. Class exact (bukan
+# `[class*=...]` yang lebar) sengaja dipakai untuk container tile-nya -
+# versi wildcard sebelumnya ikut match child element seperti
+# `video-avatar__avatar-title` / `-footer` / `-name` (semuanya mengandung
+# substring "video-avatar__avatar"), jadi 1 peserta asli kehitung beberapa
+# tile palsu. Dikonfirmasi lewat inspeksi DOM live: ".speaker-bar-container__
+# video-frame" adalah strip thumbnail peserta yang muncul saat ada yang
+# screen-share (kasus paling umum di kelas/rapat kerja); ".gallery-video-
+# container__video-tile" untuk gallery view biasa (belum diverifikasi live,
+# nama class dari dokumentasi Zoom).
 TILE_SELECTOR_CANDIDATES = [
-    "[class*='video-avatar__avatar']",
-    "[class*='gallery-video-container__video-tile']",
-    "[class*='participants-item']",
+    ".speaker-bar-container__video-frame",
+    ".gallery-video-container__video-tile",
 ]
+# Masing-masing dicoba sebagai teks (.text_content()) DULU, lalu sebagai
+# atribut `alt` kalau elemennya <img> (avatar placeholder pakai foto
+# profil, teksnya kosong tapi alt="Nama Peserta").
 NAME_SELECTOR_CANDIDATES = [
-    "[class*='video-avatar__avatar-title']",
-    "[class*='display-name']",
-    "[class*='participants-item__display-name']",
+    ".video-avatar__avatar-footer span",
+    "img.video-avatar__avatar-img",
+    ".video-avatar__avatar-name",
 ]
 
 
@@ -174,6 +185,7 @@ def join_meeting(page: Page, join_url: str, display_name: str, passcode: str | N
     # "Join Audio by Computer", tutup dialognya saja.
     time.sleep(5)
     _dismiss_if_present(page, "button:has-text(\"Don't Join Audio\")", timeout_ms=5000)
+    _dismiss_if_present(page, "button:has-text('Continue without microphone')", timeout_ms=5000)
     _dismiss_if_present(page, "[aria-label='Close']")
 
     # Jaga-jaga kalau audio ternyata tetap ke-join (mis. dialognya keburu
@@ -217,10 +229,16 @@ def _find_tiles(page: Page):
 def _extract_name(page: Page, tile) -> str | None:
     for selector in NAME_SELECTOR_CANDIDATES:
         el = tile.locator(selector).first
-        if el.count() > 0:
-            text = (el.text_content() or "").strip()
-            if text:
-                return text
+        if el.count() == 0:
+            continue
+        text = (el.text_content() or "").strip()
+        if text:
+            return text
+        # Avatar dengan foto profil: <img class="video-avatar__avatar-img"
+        # alt="Nama Peserta"> tidak punya text content, namanya di `alt`.
+        alt = el.get_attribute("alt")
+        if alt:
+            return alt.strip()
     return None
 
 
