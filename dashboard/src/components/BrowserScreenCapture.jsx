@@ -50,6 +50,16 @@ export default function BrowserScreenCapture() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
+    if (!video.videoWidth || !video.videoHeight) return;
+
+    // Resolusi video getDisplayMedia bisa berubah kapan saja (jendela yang
+    // di-share di-resize/maximize) - samakan ukuran canvas ke resolusi
+    // video saat ini tiap frame, supaya drawImage tidak men-stretch frame
+    // ke ukuran canvas basi dan menghasilkan gambar pecah/distorsi.
+    if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
 
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
