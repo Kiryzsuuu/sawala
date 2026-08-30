@@ -187,6 +187,13 @@ def register_routes(app, engine, monitor_loop, get_current_user):
     def bot_status(_: dict = Depends(get_current_user)):
         return bot_manager.status()
 
+    @app.post("/api/bot/clear-log")
+    def clear_bot_log(_: dict = Depends(get_current_user)):
+        if bot_manager.is_running():
+            raise HTTPException(409, "Hentikan bot dulu sebelum membersihkan log")
+        bot_manager.clear_log()
+        return {"status": "ok"}
+
     @app.post("/api/ingest/frame")
     async def ingest_frame(
         participant_name: str,

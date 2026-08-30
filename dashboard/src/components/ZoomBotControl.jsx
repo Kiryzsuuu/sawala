@@ -75,6 +75,18 @@ export default function ZoomBotControl() {
     }
   }
 
+  async function clearLog() {
+    setBusy(true);
+    try {
+      const res = await authFetch("/api/bot/clear-log", { method: "POST" });
+      if (res.ok) setStatus((s) => ({ ...s, log_tail: [] }));
+    } catch {
+      setError("Tidak bisa menghubungi server.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="rounded-xl border border-line bg-card p-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-ink-soft">
@@ -129,6 +141,15 @@ export default function ZoomBotControl() {
         <span className="text-xs text-neutral-500">
           {status.running ? "Bot sedang berjalan" : "Bot tidak aktif"}
         </span>
+        {!status.running && status.log_tail?.length > 0 && (
+          <button
+            onClick={clearLog}
+            disabled={busy}
+            className="ml-auto text-xs text-neutral-500 underline hover:text-neutral-700 disabled:opacity-50"
+          >
+            Bersihkan log
+          </button>
+        )}
       </div>
 
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}

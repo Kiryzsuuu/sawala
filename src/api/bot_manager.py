@@ -92,6 +92,9 @@ class BotManager:
         self._reader_thread = threading.Thread(target=_read_output, daemon=True)
         self._reader_thread.start()
 
+    def clear_log(self) -> None:
+        self._log.clear()
+
     def stop(self) -> None:
         with self._lock:
             process = self._process
