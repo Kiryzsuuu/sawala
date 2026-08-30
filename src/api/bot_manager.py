@@ -6,6 +6,8 @@ and running two bots against the same session would just double-post
 duplicate frames for the same participants."""
 from __future__ import annotations
 
+import os
+import signal
 import subprocess
 import sys
 import threading
@@ -71,6 +73,14 @@ class BotManager:
                 text=True,
                 bufsize=1,
                 cwd=str(PROJECT_ROOT),
+                # Proses baru jadi pemimpin process group-nya sendiri (bukan
+                # ikut punya backend ini), supaya waktu stop() nanti kita
+                # bisa bunuh SELURUH pohon proses (termasuk Chromium yang
+                # Playwright spawn di bawahnya) lewat killpg - kalau cuma
+                # bunuh proses python-nya saja, Chromium bisa jadi anak
+                # yatim yang tetap nyangkut di meeting (bahkan tetap ikut
+                # audio/beep) walau dashboard sudah bilang "tidak aktif".
+                start_new_session=hasattr(os, "setsid"),
             )
             proc = self._process
 
@@ -87,12 +97,24 @@ class BotManager:
             process = self._process
         if process is None or process.poll() is not None:
             return
-        logger.info("Stopping Zoom bot subprocess")
-        process.terminate()
+        logger.info("Stopping Zoom bot subprocess (and its process group)")
+        if hasattr(os, "killpg"):
+            try:
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                return
+        else:
+            process.terminate()
         try:
             process.wait(timeout=10)
         except subprocess.TimeoutExpired:
-            process.kill()
+            if hasattr(os, "killpg"):
+                try:
+                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+            else:
+                process.kill()
 
 
 bot_manager = BotManager()
